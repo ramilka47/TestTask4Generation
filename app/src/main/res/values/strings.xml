@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">TestTask4Generation</string>
+    <string name="empty_query">Пустой запрос</string>
+    <string name="internet_access_worn">Нет доступа в интернет.</string>
+    <string name="empty_result_query">По запросу ничего не найдено</string>
+    <string name="worn_query">Ошибочный запрос</string>
+    <string name="welcome">Добро пожаловать %s</string>
+    <string name="login">Логин или эл. почта</string>
+    <string name="password">Пароль</string>
+    <string name="login_error">Неправильный логин или пароль.</string>
+    <string name="enter">Войти</string>
+    <string name="search">Поиск</string>
+    <string name="repo_name">Название</string>
+    <string name="repo_description">Описание</string>
+    <string name="last_commit">Последнее обновление %s</string>
+    <string name="default_branch">Текущая ветка %s</string>
+    <string name="forks">Ветки %s</string>
+    <string name="language">Язык %s</string>
+    <string name="rating">Рейтинг %s</string>
+    <string name="logout">Выйти</string>
+    <string name="start">Hello World!</string>
+    <string name="cancel">Отмена</string>
+    <string name="you_sure_for_exit">Вы действительно хотите выйти?</string>
+    <string name="all_info_you_profile_will_be_to_lose">Вся информация с вашего профиля будет утеряна.</string>
+    <string name="authorizetion_git">Авторизация GitHub</string>
+    <string name="user_have_not_repositories">У пользователя нет репозиториев.</string>
+    <string name="count_of_requests_get_a_higher_rate_limit">Сервер ругается. Количество запросов превышено, попробуйте позже.</string>
+    <string name="write_anything">Введите что-нибудь.</string>
+    <string name="user_s">Пользователь %s</string>
+</resources>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/light_grey"
+    android:orientation="vertical"
+    android:elevation="4dp"
+    android:padding="12dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:textColor="@color/black"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:id="@+id/title"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/black"
+        android:maxLines="4"
+        android:textSize="12sp"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/last_commit"
+        android:id="@+id/desctiption"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_marginTop="4dp"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:textSize="10sp"
+        android:layout_alignParentRight="true"
+        android:id="@+id/fork"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_marginTop="4dp"
+        android:layout_below="@id/fork"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:textSize="10sp"
+        android:layout_alignParentRight="true"
+        android:id="@+id/last_commit"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_marginTop="4dp"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:textSize="10sp"
+        android:layout_below="@id/last_commit"
+        android:layout_alignParentRight="true"
+        android:id="@+id/count_forks"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_marginTop="4dp"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:textSize="10sp"
+        android:layout_below="@id/count_forks"
+        android:layout_alignParentRight="true"
+        android:id="@+id/language"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_marginTop="4dp"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:textSize="10sp"
+        android:layout_below="@id/desctiption"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/stars"/>
+
+</LinearLayout>

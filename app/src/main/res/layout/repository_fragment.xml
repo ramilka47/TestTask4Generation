@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/my_face_fragment"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="4dp"
+            android:id="@+id/recycler_view"/>
+
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:visibility="gone"
+            android:id="@+id/loading"
+            android:layout_gravity="center"
+            />
+
+        <include
+            android:visibility="gone"
+            android:id="@+id/inner_frame"
+            layout="@layout/item_inner_search_t_result"/>
+
+    </FrameLayout>
+
+</LinearLayout>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/container"/>
+
+    <include
+        android:id="@+id/inc_search"
+        android:layout_below="@id/container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        layout="@layout/search_item"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/inc_search">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="4dp"
+            android:id="@+id/recycler_view"/>
+
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:visibility="gone"
+            android:id="@+id/loading"
+            android:layout_gravity="center"
+            />
+
+        <include
+            android:visibility="gone"
+            android:id="@+id/inner_frame"
+            layout="@layout/item_inner_search_t_result"/>
+
+    </FrameLayout>
+
+</RelativeLayout>
