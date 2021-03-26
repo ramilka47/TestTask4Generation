@@ -4,7 +4,7 @@ import com.tesk.task.providers.api.impl.result.HubResult
 import com.tesk.task.providers.room.models.RepositoryEntity
 import java.util.*
 
-class Repository {
+class Hub {
     val id : String
     val name : String
     val desctiption : String

@@ -9,18 +9,17 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tesk.task.R
-import com.tesk.task.app.viewmodels.GetFollowersViewModel
+import com.tesk.task.app.viewmodels.no.GetFollowersViewModel
 import com.tesk.task.providers.api.IApiGitJoke
 import com.tesk.task.providers.api.impl.models.User
 import com.tesk.task.providers.room.dao.UserDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.lang.ref.WeakReference
 
-class SearchAdapter(private val iShowRepository: IShowUserRepositories,
+class SearchAdapter(private val iShowRepository: IShowUserHub,
                     private val context : WeakReference<Context>,
                     private val userDao: UserDao,
                     private val api : IApiGitJoke) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {

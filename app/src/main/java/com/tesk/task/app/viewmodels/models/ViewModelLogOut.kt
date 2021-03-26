@@ -1,6 +1,6 @@
 package com.tesk.task.app.viewmodels.models
 
-import com.tesk.task.app.viewmodels.AViewModel
+import com.tesk.task.app.viewmodels.no.AViewModel
 import com.tesk.task.providers.api.IApiGitJoke
 import com.tesk.task.providers.room.dao.MyFaceDao
 

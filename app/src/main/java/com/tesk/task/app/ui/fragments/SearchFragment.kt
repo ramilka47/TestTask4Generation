@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,17 +14,20 @@ import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tesk.task.R
 import com.tesk.task.app.Application
-import com.tesk.task.app.adapters.IShowUserRepositories
+import com.tesk.task.app.adapters.IShowUserHub
 import com.tesk.task.app.adapters.SearchAdapter
 import com.tesk.task.app.ui.IUserController
 import com.tesk.task.app.ui.dialogs.DialogExit
 import com.tesk.task.app.ui.dialogs.DialogLogin
-import com.tesk.task.app.viewmodels.AuthorizeViewModel
-import com.tesk.task.app.viewmodels.SearchViewModel
+import com.tesk.task.app.viewmodels.AViewModel
+import com.tesk.task.app.viewmodels.Repository
+import com.tesk.task.app.viewmodels.ViewModelFactory
+import com.tesk.task.app.viewmodels.no.AuthorizeViewModel
 import com.tesk.task.providers.api.IApiGitJoke
 import com.tesk.task.providers.api.impl.models.User
 import com.tesk.task.providers.room.AppDatabase
@@ -39,9 +43,11 @@ class SearchFragment : Fragment(), IUserController {
     lateinit var api : IApiGitJoke
         @Inject set
 
-    lateinit var iShowUserRepositories: IShowUserRepositories
+    private val viewModel by lazy {
+        ViewModelFactory(Repository(bd, api)).create(AViewModel.SearchViewModel::class.java)
+    }
 
-    private lateinit var searchViewModel : SearchViewModel
+    lateinit var iShowUserRepositories: IShowUserHub
     private lateinit var authorizeViewModel: AuthorizeViewModel
 
     private lateinit var recyclerView : RecyclerView
@@ -68,7 +74,6 @@ class SearchFragment : Fragment(), IUserController {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (requireActivity().application as Application).appComponent.inject(this)
-        searchViewModel = SearchViewModel(bd.usersDao(), api)
         authorizeViewModel = AuthorizeViewModel(api, bd.myPageDao())
     }
 
@@ -108,6 +113,20 @@ class SearchFragment : Fragment(), IUserController {
             }
         }
 
+        editFieldSearch.imeOptions = EditorInfo.IME_ACTION_SEARCH
+        editFieldSearch.setOnEditorActionListener { v, actionId, event ->
+            when(actionId){
+                EditorInfo.IME_ACTION_SEARCH -> {
+                    search()
+                }
+            }
+            false
+        }
+
+        editFieldSearch.afterTextChanged {
+            query = it
+        }
+
         showUser()
 
         subscribe()
@@ -145,7 +164,7 @@ class SearchFragment : Fragment(), IUserController {
         }
     }
 
-    private fun updateList(list : List<User>){
+    private fun showUsers(list : List<User>){
         loading.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
         innerResultFrame.visibility = View.GONE
@@ -180,39 +199,16 @@ class SearchFragment : Fragment(), IUserController {
     }
 
     private fun subscribe(){
-        searchViewModel.liveData.observe(this, Observer {
-            val result = it?:return@Observer
-
-            if (result.first != null){
-                if (result.first?.users.isNullOrEmpty()){
-                    showOnEmpty()
-                } else {
-                    updateList(result.first?.users ?: return@Observer)
-                }
-            } else if (result.second != null){
-                showLoading()
-            } else if (result.third != null){
-                if (result.third == R.string.count_of_requests_get_a_higher_rate_limit){
-                    Toast.makeText(requireContext(), getString(result.third?:return@Observer), Toast.LENGTH_SHORT).show()
-                } else {
-                    showError()
-                }
-            }
+        viewModel.loadingLiveData.observe(this, { showLoading() })
+        viewModel.isEmptyListLiveData.observe(this, { showOnEmpty() })
+        viewModel.errorLiveData.observe(this, { /*error*/
+            /*  if (result.third == R.string.count_of_requests_get_a_higher_rate_limit){
+                        Toast.makeText(requireContext(), getString(result.third?:return@Observer), Toast.LENGTH_SHORT).show()
+                    } else {
+                        showError()
+                    }*/
         })
-
-        editFieldSearch.imeOptions = EditorInfo.IME_ACTION_SEARCH
-        editFieldSearch.setOnEditorActionListener { v, actionId, event ->
-            when(actionId){
-                EditorInfo.IME_ACTION_SEARCH -> {
-                    search()
-                }
-            }
-            false
-        }
-
-        editFieldSearch.afterTextChanged {
-            query = it
-        }
+        viewModel.dataLiveData.observe(this, { showUsers(it) })
     }
 
     private fun search() {
@@ -229,12 +225,7 @@ class SearchFragment : Fragment(), IUserController {
             e.printStackTrace()
         }
 
-        if (job != null) {
-            job?.cancel()
-        }
-        job = CoroutineScope(Dispatchers.IO).launch {
-            searchViewModel.search(query)
-        }
+        viewModel.getUsers(query)
     }
 
     fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit){

@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import com.tesk.task.providers.api.EndpointGit
 import com.tesk.task.providers.api.IApiGitJoke
 import com.tesk.task.providers.api.IHttpClient
-import com.tesk.task.providers.api.impl.models.Repository
+import com.tesk.task.providers.api.impl.models.Hub
 import com.tesk.task.providers.api.impl.models.User
 import com.tesk.task.providers.api.impl.result.HubResult
 import com.tesk.task.providers.api.impl.result.SearchResult
@@ -25,7 +25,7 @@ class ApiGitJoke(private var iHttpClient: IHttpClient) : IApiGitJoke {
                             ApiHelper.createParamsSearch(query?:throw SearchQueryException()),
                             ApiHelper.createPathsSerach()))
 
-    override suspend fun getHubsForUser(user: User): List<Repository> =
+    override suspend fun getHubsForUser(user: User): List<Hub> =
         fromHubResult(
                 iHttpClient.get(
                         EndpointGit.API.value,
@@ -59,13 +59,13 @@ class ApiGitJoke(private var iHttpClient: IHttpClient) : IApiGitJoke {
         return users
     }
 
-    private fun fromHubResult(string : String) : List<Repository>{
+    private fun fromHubResult(string : String) : List<Hub>{
         val intermediateResultList = JSONArray(string)
-        val repositories = mutableListOf<Repository>()
+        val repositories = mutableListOf<Hub>()
 
         for (i in 0 until intermediateResultList.length()){
             val result = Gson().fromJson<HubResult>(intermediateResultList[i].toString(), HubResult::class.java)
-            repositories.add(Repository(result))
+            repositories.add(Hub(result))
         }
 
         return repositories

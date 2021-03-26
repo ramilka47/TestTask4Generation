@@ -7,15 +7,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.tesk.task.R
-import com.tesk.task.providers.api.impl.models.Repository
+import com.tesk.task.providers.api.impl.models.Hub
 import java.lang.ref.WeakReference
 
 class RepositoryAdapter(private val context : WeakReference<Context>) : RecyclerView.Adapter<RepositoryAdapter.RepoHolder>() {
 
-    private var repositories = mutableListOf<Repository>()
+    private var repositories = mutableListOf<Hub>()
     private var inflater = LayoutInflater.from(context.get())
 
-    fun refresh(list : List<Repository>){
+    fun refresh(list : List<Hub>){
         repositories.clear()
         repositories.addAll(list)
     }
@@ -31,7 +31,7 @@ class RepositoryAdapter(private val context : WeakReference<Context>) : Recycler
 
     inner class RepoHolder(view : View) : RecyclerView.ViewHolder(view){
 
-        fun bind(repository: Repository){
+        fun bind(repository: Hub){
             val title = itemView.findViewById<TextView>(R.id.title)
             val desctiption = itemView.findViewById<TextView>(R.id.desctiption)
             val lastCommit = itemView.findViewById<TextView>(R.id.last_commit)

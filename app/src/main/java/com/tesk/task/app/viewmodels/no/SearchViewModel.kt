@@ -1,4 +1,4 @@
-package com.tesk.task.app.viewmodels
+package com.tesk.task.app.viewmodels.no
 
 import com.tesk.task.R
 import com.tesk.task.app.viewmodels.models.SearchSuccess

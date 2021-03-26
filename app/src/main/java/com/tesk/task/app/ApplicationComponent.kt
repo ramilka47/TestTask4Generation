@@ -5,7 +5,7 @@ import com.tesk.task.app.modules.ModuleApp
 import com.tesk.task.app.modules.ModuleBd
 import com.tesk.task.app.ui.dialogs.DialogExit
 import com.tesk.task.app.ui.dialogs.DialogLogin
-import com.tesk.task.app.ui.fragments.RepositoryFragment
+import com.tesk.task.app.ui.fragments.HubFragment
 import com.tesk.task.app.ui.fragments.SearchFragment
 import dagger.Component
 import javax.inject.Singleton
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Component(modules = arrayOf(ModuleApp::class, ModuleBd::class, ModuleApi::class))
 interface ApplicationComponent {
 
-    fun inject(repositoryFragment: RepositoryFragment)
+    fun inject(repositoryFragment: HubFragment)
 
     fun inject(searchFragment: SearchFragment)
 

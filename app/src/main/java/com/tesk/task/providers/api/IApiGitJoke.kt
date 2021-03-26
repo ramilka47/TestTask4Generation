@@ -1,6 +1,6 @@
 package com.tesk.task.providers.api
 
-import com.tesk.task.providers.api.impl.models.Repository
+import com.tesk.task.providers.api.impl.models.Hub
 import com.tesk.task.providers.api.impl.models.User
 
 interface IApiGitJoke {
@@ -9,7 +9,7 @@ interface IApiGitJoke {
 
     suspend fun getUsersByQuery(query : String?) : List<User>
 
-    suspend fun getHubsForUser(user : User) : List<Repository>
+    suspend fun getHubsForUser(user : User) : List<Hub>
 
     suspend fun getFollowers(user : User) : Int
 

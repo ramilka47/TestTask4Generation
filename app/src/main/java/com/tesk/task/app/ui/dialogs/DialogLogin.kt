@@ -3,7 +3,6 @@ package com.tesk.task.app.ui.dialogs
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.InputType
@@ -20,7 +19,7 @@ import androidx.lifecycle.Observer
 import com.tesk.task.R
 import com.tesk.task.app.Application
 import com.tesk.task.app.ui.IUserController
-import com.tesk.task.app.viewmodels.AuthorizeViewModel
+import com.tesk.task.app.viewmodels.no.AuthorizeViewModel
 import com.tesk.task.providers.api.IApiGitJoke
 import com.tesk.task.providers.room.AppDatabase
 import kotlinx.coroutines.CoroutineScope

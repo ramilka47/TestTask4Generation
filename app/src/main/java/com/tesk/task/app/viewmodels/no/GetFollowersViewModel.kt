@@ -1,4 +1,4 @@
-package com.tesk.task.app.viewmodels
+package com.tesk.task.app.viewmodels.no
 
 import com.tesk.task.providers.api.IApiGitJoke
 import com.tesk.task.providers.api.impl.models.User

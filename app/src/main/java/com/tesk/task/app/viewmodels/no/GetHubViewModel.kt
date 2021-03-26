@@ -1,15 +1,15 @@
-package com.tesk.task.app.viewmodels
+package com.tesk.task.app.viewmodels.no
 
 import com.tesk.task.R
 import com.tesk.task.providers.api.IApiGitJoke
-import com.tesk.task.providers.api.impl.models.Repository
+import com.tesk.task.providers.api.impl.models.Hub
 import com.tesk.task.providers.api.impl.models.User
 import com.tesk.task.providers.room.dao.RepositoryDao
 import com.tesk.task.providers.room.models.RepositoryEntity
 import org.json.JSONException
 import java.io.IOException
 
-class GetHubViewModel(private val repositoryDao: RepositoryDao, private val api : IApiGitJoke) : AViewModel<List<Repository>, Boolean, Int>(){
+class GetHubViewModel(private val repositoryDao: RepositoryDao, private val api : IApiGitJoke) : AViewModel<List<Hub>, Boolean, Int>(){
 
     suspend fun getRepository(user: User){
         post(loading = true)
@@ -34,7 +34,7 @@ class GetHubViewModel(private val repositoryDao: RepositoryDao, private val api 
         }
     }
 
-    private suspend fun addIntoBase(user: User, list : List<Repository>) = list.forEach{repo->
+    private suspend fun addIntoBase(user: User, list : List<Hub>) = list.forEach{ repo->
         val entity = repositoryDao.getById(repo.id)
         val trueEntity = RepositoryEntity(repo.id,
                 repo.name,
@@ -53,16 +53,16 @@ class GetHubViewModel(private val repositoryDao: RepositoryDao, private val api 
         }
     }
 
-    private suspend fun getFromBd(user: User) : List<Repository>{
+    private suspend fun getFromBd(user: User) : List<Hub>{
         val repoEntList = repositoryDao.getAllByUserName(user.name)
-        val repositories = mutableListOf<Repository>()
+        val repositories = mutableListOf<Hub>()
         repoEntList.forEach {entity ->
-            repositories.add(Repository(entity))
+            repositories.add(Hub(entity))
         }
 
         return repositories
     }
 
-    private suspend fun getFromNet(user: User) : List<Repository> = api.getHubsForUser(user)
+    private suspend fun getFromNet(user: User) : List<Hub> = api.getHubsForUser(user)
 
 }

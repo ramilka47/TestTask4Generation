@@ -4,12 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.tesk.task.R
-import com.tesk.task.app.adapters.IShowUserRepositories
-import com.tesk.task.app.ui.fragments.RepositoryFragment
+import com.tesk.task.app.adapters.IShowUserHub
+import com.tesk.task.app.ui.fragments.HubFragment
 import com.tesk.task.app.ui.fragments.SearchFragment
 import com.tesk.task.providers.api.impl.models.User
 
-class MainActivity : AppCompatActivity(), IShowUserRepositories {
+class MainActivity : AppCompatActivity(), IShowUserHub {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(), IShowUserRepositories {
     }
 
     override fun showRepo(user: User) {
-        val fragment = RepositoryFragment().apply {
+        val fragment = HubFragment().apply {
             this.user = user
         }
         execute(fragment)

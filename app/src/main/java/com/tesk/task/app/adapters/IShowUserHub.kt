@@ -2,7 +2,7 @@ package com.tesk.task.app.adapters
 
 import com.tesk.task.providers.api.impl.models.User
 
-interface IShowUserRepositories {
+interface IShowUserHub {
 
     fun showRepo(user : User)
 
