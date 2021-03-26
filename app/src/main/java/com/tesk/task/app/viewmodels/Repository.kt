@@ -21,6 +21,16 @@ class Repository(private var bd : AppDatabase, private var api : IApiGitJoke) {
     private var jobLogin : Job? = null
     private var jobLogout : Job? = null
     private var jobFollowers : Job? = null
+    private var jobMyFace : Job? = null
+
+    fun <R> getMyFace(iListener: IListener<R>){
+        jobMyFace = coroutine.launch {
+            val myFace = bd.myPageDao().getById(0)
+            if (myFace != null){
+                iListener.onSuccess(myFace.name as R)
+            }
+        }
+    }
 
     fun <R> getFollowers(user : User, iListener: IListener<R>){
         jobFollowers = coroutine.launch {

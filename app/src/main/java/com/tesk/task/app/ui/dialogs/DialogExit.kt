@@ -15,15 +15,20 @@ import com.tesk.task.R
 import com.tesk.task.app.Application
 import com.tesk.task.app.viewmodels.FactoryViewModel
 import com.tesk.task.app.viewmodels.ViewModelLogOut
+import com.tesk.task.app.viewmodels.ViewModelMyFace
 import javax.inject.Inject
 
 class DialogExit : DialogFragment() {
 
-    lateinit var factoryViewModel : FactoryViewModel
+    lateinit var viewModeleFactory : FactoryViewModel
     @Inject set
 
     private val viewModelLogOut by lazy {
-        factoryViewModel.create(ViewModelLogOut::class.java)
+        viewModeleFactory.create(ViewModelLogOut::class.java)
+    }
+
+    private val viewModelMyFace by lazy{
+        viewModeleFactory.create(ViewModelMyFace::class.java)
     }
 
     private lateinit var title : TextView
@@ -64,6 +69,7 @@ class DialogExit : DialogFragment() {
     }
 
     private fun onSuccess(){
+        viewModelMyFace.hideMyFace()
         dismiss()
     }
 

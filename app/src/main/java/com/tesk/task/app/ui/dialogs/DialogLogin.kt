@@ -15,10 +15,12 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.tesk.task.R
 import com.tesk.task.app.Application
 import com.tesk.task.app.viewmodels.FactoryViewModel
 import com.tesk.task.app.viewmodels.ViewModelAuthorize
+import com.tesk.task.app.viewmodels.ViewModelMyFace
 import javax.inject.Inject
 
 class DialogLogin : DialogFragment(){
@@ -28,6 +30,10 @@ class DialogLogin : DialogFragment(){
 
     private val authorizeViewModel by lazy {
         viewModelFactory.create(ViewModelAuthorize::class.java)
+    }
+
+    private val viewModelMyFace by lazy {
+        viewModelFactory.create(ViewModelMyFace::class.java)
     }
 
     private var loginString : String = ""
@@ -103,8 +109,10 @@ class DialogLogin : DialogFragment(){
         }catch (e : java.lang.Exception){
             e.printStackTrace()
         }
+
         Toast.makeText(requireContext(), String.format(getString(R.string.welcome), name), Toast.LENGTH_SHORT).show()
 
+        viewModelMyFace.showMyFace(name)
         dismiss()
     }
 

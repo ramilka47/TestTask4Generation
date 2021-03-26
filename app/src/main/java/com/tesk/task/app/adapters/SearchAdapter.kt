@@ -1,6 +1,5 @@
 package com.tesk.task.app.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tesk.task.R
 import com.tesk.task.providers.api.impl.models.User
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 
 class SearchAdapter(private val inflater: LayoutInflater) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 

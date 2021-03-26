@@ -22,22 +22,26 @@ import com.tesk.task.app.ui.dialogs.DialogExit
 import com.tesk.task.app.ui.dialogs.DialogLogin
 import com.tesk.task.app.viewmodels.AViewModel
 import com.tesk.task.app.viewmodels.FactoryViewModel
+import com.tesk.task.app.viewmodels.ViewModelGetMyFace
 import com.tesk.task.app.viewmodels.ViewModelMyFace
 import com.tesk.task.providers.api.impl.models.User
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class SearchFragment : Fragment() {
 
-    lateinit var viewModuleFactory: FactoryViewModel
+    lateinit var viewModeleFactory: FactoryViewModel
     @Inject set
 
     private val viewModel by lazy {
-        viewModuleFactory.create(AViewModel.SearchViewModel::class.java)
+        viewModeleFactory.create(AViewModel.SearchViewModel::class.java)
     }
 
     private val viewModelMyFace by lazy{
-        viewModuleFactory.create(ViewModelMyFace::class.java)
+        viewModeleFactory.create(ViewModelMyFace::class.java)
+    }
+
+    private val viewModelGetMyFace by lazy {
+        viewModeleFactory.create(ViewModelGetMyFace::class.java)
     }
 
     private lateinit var recyclerView : RecyclerView
@@ -52,7 +56,6 @@ class SearchFragment : Fragment() {
     private lateinit var searchAdapter: SearchAdapter
 
     private var query = ""
-    private var faceId = 0
 
     private val TAG_MY_FACE = "my_face"
 
@@ -105,6 +108,8 @@ class SearchFragment : Fragment() {
 
         showStart()
         subscribe()
+
+        viewModelGetMyFace.get()
     }
 
     private fun showDialog(dialogFragment: DialogFragment){
@@ -127,9 +132,7 @@ class SearchFragment : Fragment() {
         enterButton.setText(R.string.logout)
         val myFaceFragment = MyFaceFragment()
         myFaceFragment.setName(name)
-        faceId = myFaceFragment.id
         childFragmentManager.beginTransaction().add(R.id.container, myFaceFragment, TAG_MY_FACE).setCustomAnimations(R.anim.slide_out_bottom, R.anim.slide_in_top).commit()
-
         enterButton.setOnClickListener {
             showDialog(DialogExit())
         }
@@ -181,8 +184,10 @@ class SearchFragment : Fragment() {
         })
         viewModel.dataLiveData.observe(this, { showUsers(it) })
 
-       /* viewModelMyFace.successLiveData.observe(this, { showMyFace(it) })
-        viewModelMyFace.errorLiveData.observe(this, { hideMyFace() })*/
+        viewModelMyFace.showMyFaceLiveData.observe(this, { showMyFace(it?:return@observe) })
+        viewModelMyFace.hideMyFaceLiveData.observe(this, { hideMyFace() })
+
+        viewModelGetMyFace.successLiveData.observe(this, { showMyFace(it) })
     }
 
     private fun search() {

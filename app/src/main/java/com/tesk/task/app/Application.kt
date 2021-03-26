@@ -14,10 +14,6 @@ class Application : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val bd = Room
-                .databaseBuilder(this, AppDatabase::class.java, "main")
-                .build()
-
         appComponent = DaggerApplicationComponent
                 .builder()
                 .moduleApp(ModuleApp(this))

@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 
 class FactoryViewModel(private val repository: Repository) : ViewModelProvider.Factory {
 
+    private val viewModelMyFace = ViewModelMyFace()
+
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return when(modelClass){
             AViewModel.SearchViewModel::class.java->{
@@ -22,8 +24,11 @@ class FactoryViewModel(private val repository: Repository) : ViewModelProvider.F
             ViewModelGetFollowers::class.java->{
                 ViewModelGetFollowers(repository)
             }
+            ViewModelGetMyFace::class.java->{
+                ViewModelGetMyFace(repository)
+            }
             ViewModelMyFace::class.java->{
-                ViewModelMyFace()
+                viewModelMyFace
             }
             else ->{
                 null
