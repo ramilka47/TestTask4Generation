@@ -1,6 +1,7 @@
 package com.tesk.task.app.modules
 
 import android.app.Application
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -10,5 +11,5 @@ class ModuleApp(private val application: Application) {
 
     @Provides
     @Singleton
-    fun providesApp() = application
+    fun providesApp() : Context = application
 }

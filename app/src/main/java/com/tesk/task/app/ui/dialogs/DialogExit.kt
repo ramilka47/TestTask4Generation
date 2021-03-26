@@ -11,38 +11,29 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
 import com.tesk.task.R
 import com.tesk.task.app.Application
-import com.tesk.task.app.ui.IUserController
-import com.tesk.task.app.viewmodels.models.ViewModelLogOut
-import com.tesk.task.providers.api.IApiGitJoke
-import com.tesk.task.providers.room.AppDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.tesk.task.app.viewmodels.FactoryViewModel
+import com.tesk.task.app.viewmodels.ViewModelLogOut
 import javax.inject.Inject
 
-object DialogExit : DialogFragment() {
+class DialogExit : DialogFragment() {
+
+    lateinit var factoryViewModel : FactoryViewModel
+    @Inject set
+
+    private val viewModelLogOut by lazy {
+        factoryViewModel.create(ViewModelLogOut::class.java)
+    }
 
     private lateinit var title : TextView
     private lateinit var desctiption : TextView
     private lateinit var cancel : Button
     private lateinit var logOut : Button
 
-    lateinit var bd : AppDatabase
-    @Inject set
-
-    lateinit var api : IApiGitJoke
-    @Inject set
-
-    lateinit var viewModelLogOut: ViewModelLogOut
-    lateinit var iUserController: IUserController
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (requireActivity().application as Application).appComponent.inject(this)
-        viewModelLogOut = ViewModelLogOut(bd.myPageDao(), api)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -66,22 +57,34 @@ object DialogExit : DialogFragment() {
 
         logOut.setText(R.string.logout)
         logOut.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                viewModelLogOut.logOut()
-            }
+            viewModelLogOut.logOut()
         }
 
         subscribe()
     }
 
-    private fun subscribe(){
-        viewModelLogOut.liveData.observe(this, Observer {
-            val result = it?:return@Observer
+    private fun onSuccess(){
+        dismiss()
+    }
 
-            if (result.first != null){
-                iUserController.hideUser()
-                dismiss()
-            }
+    private fun showLoading(){
+        //todo
+    }
+
+    private fun showError(){
+        dismiss()
+        //todo
+    }
+
+    private fun subscribe(){
+        viewModelLogOut.exitLiveData.observe(this, {
+            onSuccess()
+        })
+        viewModelLogOut.loadingLiveData.observe(this, {
+            showLoading()
+        })
+        viewModelLogOut.errorLiveData.observe(this, {
+            showError()
         })
     }
 

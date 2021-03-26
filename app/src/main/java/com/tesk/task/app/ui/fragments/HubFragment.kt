@@ -1,50 +1,35 @@
 package com.tesk.task.app.ui.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tesk.task.R
 import com.tesk.task.app.Application
 import com.tesk.task.app.adapters.RepositoryAdapter
 import com.tesk.task.app.viewmodels.AViewModel
-import com.tesk.task.app.viewmodels.Repository
-import com.tesk.task.app.viewmodels.ViewModelFactory
-import com.tesk.task.providers.api.IApiGitJoke
+import com.tesk.task.app.viewmodels.FactoryViewModel
 import com.tesk.task.providers.api.impl.models.Hub
 import com.tesk.task.providers.api.impl.models.User
-import com.tesk.task.providers.room.AppDatabase
-import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class HubFragment : Fragment() {
 
-    lateinit var bd : AppDatabase
-    @Inject set
+    lateinit var viewModuleFactory: FactoryViewModel
+        @Inject set
 
-    lateinit var api : IApiGitJoke
-    @Inject set
-
-    private val viewModel by lazy{
-        ViewModelFactory(Repository(bd, api)).create(AViewModel.GetHubViewModel::class.java)
+    private val viewModel by lazy {
+        viewModuleFactory.create(AViewModel.GetHubViewModel::class.java)
     }
 
     lateinit var user : User
-
-    // вытащить из бандла
-    private val TAG_GET_REPO = "tag_repo"
-    private val TAG_GET_USE = "tag_user"
 
     private lateinit var title : TextView
     private lateinit var adapter : RepositoryAdapter
@@ -52,8 +37,6 @@ class HubFragment : Fragment() {
     private lateinit var loading : ProgressBar
     private lateinit var innerResultFrame : FrameLayout
     private lateinit var innerResultText : TextView
-
-    private var job : Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +56,7 @@ class HubFragment : Fragment() {
         innerResultFrame = view.findViewById(R.id.inner_frame)
         innerResultText = view.findViewById(R.id.text)
 
-        adapter = RepositoryAdapter(WeakReference(requireContext()))
+        adapter = RepositoryAdapter(LayoutInflater.from(requireContext()))
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter

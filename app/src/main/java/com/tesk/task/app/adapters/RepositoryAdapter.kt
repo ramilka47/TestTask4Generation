@@ -10,10 +10,9 @@ import com.tesk.task.R
 import com.tesk.task.providers.api.impl.models.Hub
 import java.lang.ref.WeakReference
 
-class RepositoryAdapter(private val context : WeakReference<Context>) : RecyclerView.Adapter<RepositoryAdapter.RepoHolder>() {
+class RepositoryAdapter(private val inflater: LayoutInflater) : RecyclerView.Adapter<RepositoryAdapter.RepoHolder>() {
 
     private var repositories = mutableListOf<Hub>()
-    private var inflater = LayoutInflater.from(context.get())
 
     fun refresh(list : List<Hub>){
         repositories.clear()

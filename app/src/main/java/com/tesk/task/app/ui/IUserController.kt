@@ -4,6 +4,6 @@ interface IUserController {
 
     fun showUser()
 
-    fun hideUser()
+    fun hideMyFace()
 
 }

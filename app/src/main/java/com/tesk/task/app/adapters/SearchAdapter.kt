@@ -9,23 +9,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tesk.task.R
-import com.tesk.task.app.viewmodels.no.GetFollowersViewModel
-import com.tesk.task.providers.api.IApiGitJoke
 import com.tesk.task.providers.api.impl.models.User
-import com.tesk.task.providers.room.dao.UserDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.IOException
 import java.lang.ref.WeakReference
 
-class SearchAdapter(private val iShowRepository: IShowUserHub,
-                    private val context : WeakReference<Context>,
-                    private val userDao: UserDao,
-                    private val api : IApiGitJoke) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
+class SearchAdapter(private val inflater: LayoutInflater) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
     private var users = mutableListOf<User>()
-    private val inflater = LayoutInflater.from(context.get())
 
     override fun getItemCount(): Int = users.size
 
@@ -45,22 +37,25 @@ class SearchAdapter(private val iShowRepository: IShowUserHub,
             val avatar = itemView.findViewById<ImageView>(R.id.avatar)
             val name = itemView.findViewById<TextView>(R.id.name)
             val followers = itemView.findViewById<TextView>(R.id.followers)
-            name.text = user.name
 
-            itemView.setOnClickListener {
+            name.setText(user.name)
+            followers.setText(user.followers.toString())
+
+            Glide
+                    .with(itemView.context)
+                    .load(user.avatar)
+                    .circleCrop()
+                    .into(avatar)
+
+            /*itemView.setOnClickListener {
                 iShowRepository.showRepo(user)
-            }
+            }*/
 
-            CoroutineScope(Dispatchers.Main).launch {
-                Glide
-                        .with(itemView.context)
-                        .load(user.avatar)
-                        .circleCrop()
-                        .into(avatar)
+            /*CoroutineScope(Dispatchers.Main).launch {
             }
 
             if (user.followers == 0) {
-                CoroutineScope(Dispatchers.IO).launch {
+             *//*   CoroutineScope(Dispatchers.IO).launch {
                     val res =
                             try {
                                 GetFollowersViewModel.getFollowers(userDao, api, user)
@@ -70,10 +65,10 @@ class SearchAdapter(private val iShowRepository: IShowUserHub,
                     followers.post {
                         followers.setText(res)
                     }
-                }
+                }*//*
             } else {
                  itemView.findViewById<TextView>(R.id.followers).text = user.followers.toString()
-            }
+            }*/
         }
     }
 }

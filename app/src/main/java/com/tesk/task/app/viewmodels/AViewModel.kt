@@ -9,8 +9,8 @@ import java.lang.Exception
 
 sealed class AViewModel<T>(private val repository: Repository) : ViewModel(), Repository.IListener<T> {
 
-    private val data = MutableLiveData<List<T>>()
-    val dataLiveData : LiveData<List<T>> = data
+    private val data = MutableLiveData<T>()
+    val dataLiveData : LiveData<T> = data
 
     private val loading = MutableLiveData<Boolean>()
     val loadingLiveData : LiveData<Boolean> = loading
@@ -31,22 +31,22 @@ sealed class AViewModel<T>(private val repository: Repository) : ViewModel(), Re
         error.postValue(e)
     }
 
-    override fun onSuccess(list: List<T>?) {
+    override fun onSuccess(list: T?) {
         loading.postValue(false)
-        if (list.isNullOrEmpty()){
+        if (list == null){
             isEmptyList.postValue(true)
         } else {
             data.postValue(list)
         }
     }
 
-    class SearchViewModel(repository: Repository) : AViewModel<User>(repository){
+    class SearchViewModel(repository: Repository) : AViewModel<List<User>>(repository){
         fun getUsers(query : String){
             loadData(query)
         }
     }
 
-    class GetHubViewModel(repository: Repository) : AViewModel<Hub>(repository){
+    class GetHubViewModel(repository: Repository) : AViewModel<List<Hub>>(repository){
         fun getHubs(user : User){
             loadData(user)
         }

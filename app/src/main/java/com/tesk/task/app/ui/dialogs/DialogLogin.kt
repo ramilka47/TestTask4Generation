@@ -15,29 +15,20 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
 import com.tesk.task.R
 import com.tesk.task.app.Application
-import com.tesk.task.app.ui.IUserController
-import com.tesk.task.app.viewmodels.no.AuthorizeViewModel
-import com.tesk.task.providers.api.IApiGitJoke
-import com.tesk.task.providers.room.AppDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.tesk.task.app.viewmodels.FactoryViewModel
+import com.tesk.task.app.viewmodels.ViewModelAuthorize
 import javax.inject.Inject
 
-object DialogLogin : DialogFragment(){
+class DialogLogin : DialogFragment(){
 
-    lateinit var iUserController: IUserController
-
-    lateinit var api : IApiGitJoke
+    lateinit var viewModelFactory : FactoryViewModel
     @Inject set
 
-    lateinit var bd : AppDatabase
-    @Inject set
-
-    private lateinit var authorizeViewModel: AuthorizeViewModel
+    private val authorizeViewModel by lazy {
+        viewModelFactory.create(ViewModelAuthorize::class.java)
+    }
 
     private var loginString : String = ""
     private var passwordString : String = ""
@@ -54,7 +45,6 @@ object DialogLogin : DialogFragment(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (requireActivity().application as Application).appComponent.inject(this)
-        authorizeViewModel = AuthorizeViewModel(api, bd.myPageDao())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -83,9 +73,14 @@ object DialogLogin : DialogFragment(){
 
         enter.setText(R.string.enter)
         enter.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                authorizeViewModel.auth(loginString, passwordString)
-            }
+            authorizeViewModel.auth(loginString, passwordString)
+        }
+
+        login.afterTextChanged {
+            loginString = it
+        }
+        password.afterTextChanged {
+            passwordString = it
         }
 
         subscribe()
@@ -101,35 +96,32 @@ object DialogLogin : DialogFragment(){
         buttonBar.visibility = View.VISIBLE
     }
 
+    private fun onSuccess(name : String){
+        try {
+            val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            imm?.hideSoftInputFromWindow(requireActivity().getWindow().getDecorView().getWindowToken(), 0)
+        }catch (e : java.lang.Exception){
+            e.printStackTrace()
+        }
+        Toast.makeText(requireContext(), String.format(getString(R.string.welcome), name), Toast.LENGTH_SHORT).show()
+
+        dismiss()
+    }
+
+    private fun onError(){
+        /*Toast.makeText(requireContext(), , Toast.LENGTH_SHORT).show()*/
+    }
+
     private fun subscribe(){
-        authorizeViewModel.liveData.observe(this, Observer {
-            val result = it?:return@Observer
-
-            if (result.first != null){
-                try {
-                    val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-                    imm?.hideSoftInputFromWindow(requireActivity().getWindow().getDecorView().getWindowToken(), 0)
-                }catch (e : java.lang.Exception){
-                    e.printStackTrace()
-                }
-
-                iUserController.showUser()
-
-                dismiss()
-            } else if (result.second != null) {
+        authorizeViewModel.successLiveData.observe(this, { onSuccess(it) })
+        authorizeViewModel.loadingLiveData.observe(this, {
+            if (it) {
                 showLoading()
-            } else if (result.third != null){
-                Toast.makeText(requireContext(), getString(result.third?:return@Observer), Toast.LENGTH_SHORT).show()
+            } else {
                 hideLoading()
             }
         })
-
-        login.afterTextChanged {
-            loginString = it
-        }
-        password.afterTextChanged {
-            passwordString = it
-        }
+        authorizeViewModel.errorLiveData.observe(this, { onError() })
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

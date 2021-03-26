@@ -3,7 +3,7 @@ package com.tesk.task.app.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class ViewModelFactory(private val repository: Repository) : ViewModelProvider.Factory {
+class FactoryViewModel(private val repository: Repository) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return when(modelClass){
@@ -12,6 +12,18 @@ class ViewModelFactory(private val repository: Repository) : ViewModelProvider.F
             }
             AViewModel.GetHubViewModel::class.java->{
                 AViewModel.GetHubViewModel(repository)
+            }
+            ViewModelAuthorize::class.java->{
+                ViewModelAuthorize(repository)
+            }
+            ViewModelLogOut::class.java->{
+                ViewModelLogOut(repository)
+            }
+            ViewModelGetFollowers::class.java->{
+                ViewModelGetFollowers(repository)
+            }
+            ViewModelMyFace::class.java->{
+                ViewModelMyFace()
             }
             else ->{
                 null
