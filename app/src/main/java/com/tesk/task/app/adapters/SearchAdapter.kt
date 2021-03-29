@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.tesk.task.R
 import com.tesk.task.app.ui.fragments.IGetFollowers
 import com.tesk.task.providers.api.impl.models.User
+import kotlinx.android.synthetic.main.item_user.view.*
 
 class SearchAdapter(private val inflater: LayoutInflater, private val iShowUserHub: IShowUserHub, private val iGetFollowers : IGetFollowers) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
@@ -43,20 +44,17 @@ class SearchAdapter(private val inflater: LayoutInflater, private val iShowUserH
         }
 
         fun bind(user: User){
-            val avatar = itemView.findViewById<ImageView>(R.id.avatar)
-            val name = itemView.findViewById<TextView>(R.id.name)
-            val followers = itemView.findViewById<TextView>(R.id.followers)
-
-            name.setText(user.name)
-            followers.setText(user.followers.toString())
+            itemView.name.setText(user.name)
+            itemView.followers.setText(user.followers.toString())
 
             Glide
                     .with(itemView.context)
                     .load(user.avatar)
                     .circleCrop()
-                    .into(avatar)
+                    .into(
+                            itemView.avatar)
 
-            followers.setText(user.followers.toString())
+            itemView.followers.setText(user.followers.toString())
         }
     }
 }
