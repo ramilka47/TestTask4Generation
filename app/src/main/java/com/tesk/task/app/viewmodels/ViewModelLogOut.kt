@@ -3,6 +3,7 @@ package com.tesk.task.app.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.tesk.task.app.Repository
 import java.lang.Exception
 
 class ViewModelLogOut(private val repository: Repository) : ViewModel(), Repository.IListener<Boolean> {

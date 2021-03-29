@@ -2,8 +2,10 @@ package com.tesk.task.app.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.tesk.task.app.Repository
+import javax.inject.Inject
 
-class FactoryViewModel(private val repository: Repository) : ViewModelProvider.Factory {
+class FactoryViewModel @Inject constructor(private val repository: Repository) : ViewModelProvider.Factory {
 
     private val viewModelMyFace = ViewModelMyFace()
 

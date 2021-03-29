@@ -3,6 +3,7 @@ package com.tesk.task.app.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.tesk.task.app.Repository
 import com.tesk.task.providers.api.impl.models.User
 
 class ViewModelGetFollowers(private val repository: Repository) : ViewModel(), Repository.IListener<Int> {

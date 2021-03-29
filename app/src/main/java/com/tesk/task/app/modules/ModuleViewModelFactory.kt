@@ -1,6 +1,6 @@
 package com.tesk.task.app.modules
 
-import com.tesk.task.app.viewmodels.Repository
+import com.tesk.task.app.Repository
 import com.tesk.task.app.viewmodels.FactoryViewModel
 import dagger.Module
 import dagger.Provides

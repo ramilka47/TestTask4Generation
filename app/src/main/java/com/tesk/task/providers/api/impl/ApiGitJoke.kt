@@ -12,8 +12,9 @@ import com.tesk.task.providers.api.impl.utils.ApiHelper
 import com.tesk.task.providers.api.impl.utils.AuthHelper
 import com.tesk.task.providers.http.ImplHttpClient
 import org.json.JSONArray
+import javax.inject.Inject
 
-class ApiGitJoke(private var iHttpClient: IHttpClient) : IApiGitJoke {
+class ApiGitJoke @Inject constructor(private var iHttpClient: IHttpClient, private var gson : Gson) : IApiGitJoke {
 
     override suspend fun authorize(login: String, password: String) = AuthHelper.auth(login, password, iHttpClient)
 
@@ -48,7 +49,7 @@ class ApiGitJoke(private var iHttpClient: IHttpClient) : IApiGitJoke {
     }
 
     private fun fromSearchResult(string : String) : List<User>{
-        val result = Gson().fromJson<SearchResult>(string, SearchResult::class.java)
+        val result = gson.fromJson<SearchResult>(string, SearchResult::class.java)
         val users = mutableListOf<User>()
         // может быть пусто, может быть ошибка
 
@@ -64,7 +65,7 @@ class ApiGitJoke(private var iHttpClient: IHttpClient) : IApiGitJoke {
         val repositories = mutableListOf<Hub>()
 
         for (i in 0 until intermediateResultList.length()){
-            val result = Gson().fromJson<HubResult>(intermediateResultList[i].toString(), HubResult::class.java)
+            val result = gson.fromJson<HubResult>(intermediateResultList[i].toString(), HubResult::class.java)
             repositories.add(Hub(result))
         }
 

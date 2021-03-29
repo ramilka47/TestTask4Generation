@@ -1,4 +1,4 @@
-package com.tesk.task.app.viewmodels
+package com.tesk.task.app
 
 import com.tesk.task.providers.api.IApiGitJoke
 import com.tesk.task.providers.api.impl.models.Hub
@@ -13,10 +13,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.lang.Exception
+import javax.inject.Inject
 
-class Repository(private var bd : AppDatabase, private var api : IApiGitJoke) {
+class Repository @Inject constructor(private val bd : AppDatabase, private val api : IApiGitJoke, private val coroutine : CoroutineScope) {
 
-    private val coroutine = CoroutineScope(Dispatchers.IO)
     private var jobGet : Job? = null
     private var jobLogin : Job? = null
     private var jobLogout : Job? = null
