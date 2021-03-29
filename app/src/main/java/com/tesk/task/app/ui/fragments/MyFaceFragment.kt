@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.tesk.task.R
+import kotlinx.android.synthetic.main.my_face_fragment.*
 
 class MyFaceFragment : Fragment() {
 
@@ -26,7 +27,7 @@ class MyFaceFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<TextView>(R.id.name).text = String.format(getText(R.string.welcome).toString(), myName)
+        name.text = String.format(getText(R.string.welcome).toString(), myName)
     }
 
 }

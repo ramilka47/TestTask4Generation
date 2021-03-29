@@ -22,6 +22,9 @@ import com.tesk.task.app.ui.dialogs.DialogExit
 import com.tesk.task.app.ui.dialogs.DialogLogin
 import com.tesk.task.app.viewmodels.*
 import com.tesk.task.providers.api.impl.models.User
+import kotlinx.android.synthetic.main.item_inner_search_t_result.*
+import kotlinx.android.synthetic.main.search_fragment.*
+import kotlinx.android.synthetic.main.search_item.*
 import javax.inject.Inject
 
 class SearchFragment : Fragment(), IGetFollowers {
@@ -45,14 +48,6 @@ class SearchFragment : Fragment(), IGetFollowers {
         viewModelFactory.create(ViewModelGetFollowers::class.java)
     }
 
-    private lateinit var recyclerView : RecyclerView
-    private lateinit var loading : ProgressBar
-    private lateinit var innerResultFrame : FrameLayout
-    private lateinit var innerResultText : TextView
-    private lateinit var editFieldSearch : EditText
-    private lateinit var searchIcon : ImageView
-    private lateinit var enterButton : Button
-
     lateinit var iShowUserHub: IShowUserHub
     private lateinit var searchAdapter: SearchAdapter
 
@@ -72,30 +67,22 @@ class SearchFragment : Fragment(), IGetFollowers {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView = view.findViewById(R.id.recycler_view)
-        loading = view.findViewById(R.id.loading)
-        innerResultFrame = view.findViewById(R.id.inner_frame)
-        innerResultText = view.findViewById(R.id.text)
-        editFieldSearch = view.findViewById(R.id.search)
-        searchIcon = view.findViewById(R.id.search_icon)
-        enterButton = view.findViewById(R.id.login)
-
-        recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recycler_view.setHasFixedSize(true)
+        recycler_view.layoutManager = LinearLayoutManager(requireContext())
         searchAdapter = SearchAdapter(LayoutInflater.from(requireContext()), iShowUserHub, this)
-        recyclerView.adapter = searchAdapter
+        recycler_view.adapter = searchAdapter
 
-        searchIcon.setOnClickListener {
+        search_icon.setOnClickListener {
             search()
         }
 
-        enterButton.setOnClickListener {
+        login.setOnClickListener {
             showDialog(DialogLogin())
         }
 
-        editFieldSearch.setText(query)
-        editFieldSearch.imeOptions = EditorInfo.IME_ACTION_SEARCH
-        editFieldSearch.setOnEditorActionListener { v, actionId, event ->
+        search.setText(query)
+        search.imeOptions = EditorInfo.IME_ACTION_SEARCH
+        search.setOnEditorActionListener { v, actionId, event ->
             when(actionId){
                 EditorInfo.IME_ACTION_SEARCH -> {
                     search()
@@ -103,7 +90,7 @@ class SearchFragment : Fragment(), IGetFollowers {
             }
             false
         }
-        editFieldSearch.afterTextChanged {
+        search.afterTextChanged {
             query = it
         }
 
@@ -118,34 +105,34 @@ class SearchFragment : Fragment(), IGetFollowers {
     }
 
     private fun hideMyFace() {
-        enterButton.setText(R.string.enter)
+        login.setText(R.string.enter)
         val myFace = childFragmentManager.findFragmentByTag(TAG_MY_FACE)
         if (myFace != null){
             childFragmentManager.beginTransaction().remove(myFace).setCustomAnimations(R.anim.slide_out_top, R.anim.slide_in_top).commit()
         }
 
-        enterButton.setOnClickListener {
+        login.setOnClickListener {
             showDialog(DialogLogin())
         }
     }
 
     private fun showMyFace(name : String){
-        enterButton.setText(R.string.logout)
+        login.setText(R.string.logout)
         val myFaceFragment = MyFaceFragment()
         myFaceFragment.setName(name)
         childFragmentManager.beginTransaction().add(R.id.container, myFaceFragment, TAG_MY_FACE).setCustomAnimations(R.anim.slide_out_bottom, R.anim.slide_in_top).commit()
-        enterButton.setOnClickListener {
+        login.setOnClickListener {
             showDialog(DialogExit())
         }
     }
 
     private fun showUsers(list : List<User>){
         loading.visibility = View.GONE
-        recyclerView.visibility = View.VISIBLE
-        innerResultFrame.visibility = View.GONE
+        recycler_view.visibility = View.VISIBLE
+        inner_frame.visibility = View.GONE
 
         searchAdapter.refresh(list)
-        recyclerView.adapter?.notifyDataSetChanged()
+        recycler_view.adapter?.notifyDataSetChanged()
     }
 
     private fun showOnEmpty(){
@@ -154,9 +141,9 @@ class SearchFragment : Fragment(), IGetFollowers {
 
     private fun showInner(resource : Int){
         loading.visibility = View.GONE
-        recyclerView.visibility = View.GONE
-        innerResultFrame.visibility = View.VISIBLE
-        innerResultText.setText(resource)
+        recycler_view.visibility = View.GONE
+        inner_frame.visibility = View.VISIBLE
+        text.setText(resource)
     }
 
     private fun showStart(){
@@ -169,8 +156,8 @@ class SearchFragment : Fragment(), IGetFollowers {
 
     private fun showLoading(){
         loading.visibility = View.VISIBLE
-        recyclerView.visibility = View.GONE
-        innerResultFrame.visibility = View.GONE
+        recycler_view.visibility = View.GONE
+        inner_frame.visibility = View.GONE
     }
 
     private fun subscribe(){
@@ -196,7 +183,7 @@ class SearchFragment : Fragment(), IGetFollowers {
     }
 
     private fun search() {
-        val query = editFieldSearch.text.toString()
+        val query = search.text.toString()
         if (query.isNullOrEmpty()) {
             Toast.makeText(requireContext(), R.string.write_anything, Toast.LENGTH_SHORT).show()
             return

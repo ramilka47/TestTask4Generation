@@ -15,12 +15,12 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
 import com.tesk.task.R
 import com.tesk.task.app.Application
 import com.tesk.task.app.viewmodels.FactoryViewModel
 import com.tesk.task.app.viewmodels.ViewModelAuthorize
 import com.tesk.task.app.viewmodels.ViewModelMyFace
+import kotlinx.android.synthetic.main.dialog_login.*
 import javax.inject.Inject
 
 class DialogLogin : DialogFragment(){
@@ -39,15 +39,6 @@ class DialogLogin : DialogFragment(){
     private var loginString : String = ""
     private var passwordString : String = ""
 
-    private lateinit var title : TextView
-    private lateinit var login : EditText
-    private lateinit var password : EditText
-    private lateinit var cancel : Button
-    private lateinit var enter : Button
-    private lateinit var loading : ProgressBar
-
-    private lateinit var buttonBar : View
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (requireActivity().application as Application).appComponent.inject(this)
@@ -60,25 +51,17 @@ class DialogLogin : DialogFragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        title = view.findViewById(R.id.text_one)
-        login = view.findViewById(R.id.login)
-        password = view.findViewById(R.id.password)
-        cancel = view.findViewById(R.id.button1)
-        enter = view.findViewById(R.id.button2)
-        loading = view.findViewById(R.id.loading)
-        buttonBar = view.findViewById(R.id.button_bar)
-
         login.setText(loginString)
         password.setText(passwordString)
         password.inputType = InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
 
-        cancel.setText(R.string.cancel)
-        cancel.setOnClickListener {
+        button1.setText(R.string.cancel)
+        button1.setOnClickListener {
             dismiss()
         }
 
-        enter.setText(R.string.enter)
-        enter.setOnClickListener {
+        button2.setText(R.string.enter)
+        button2.setOnClickListener {
             authorizeViewModel.auth(loginString, passwordString)
         }
 
@@ -94,12 +77,12 @@ class DialogLogin : DialogFragment(){
 
     private fun showLoading(){
         loading.visibility = View.VISIBLE
-        buttonBar.visibility = View.INVISIBLE
+        button_bar.visibility = View.INVISIBLE
     }
 
     private fun hideLoading(){
         loading.visibility = View.INVISIBLE
-        buttonBar.visibility = View.VISIBLE
+        button_bar.visibility = View.VISIBLE
     }
 
     private fun onSuccess(name : String){

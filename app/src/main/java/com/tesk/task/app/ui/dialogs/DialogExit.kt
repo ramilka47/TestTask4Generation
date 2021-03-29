@@ -16,6 +16,7 @@ import com.tesk.task.app.Application
 import com.tesk.task.app.viewmodels.FactoryViewModel
 import com.tesk.task.app.viewmodels.ViewModelLogOut
 import com.tesk.task.app.viewmodels.ViewModelMyFace
+import kotlinx.android.synthetic.main.dialog_exit.*
 import javax.inject.Inject
 
 class DialogExit : DialogFragment() {
@@ -31,11 +32,6 @@ class DialogExit : DialogFragment() {
         viewModeleFactory.create(ViewModelMyFace::class.java)
     }
 
-    private lateinit var title : TextView
-    private lateinit var desctiption : TextView
-    private lateinit var cancel : Button
-    private lateinit var logOut : Button
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (requireActivity().application as Application).appComponent.inject(this)
@@ -47,21 +43,17 @@ class DialogExit : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        title = view.findViewById(R.id.text_one)
-        desctiption = view.findViewById(R.id.text_two)
-        cancel = view.findViewById(R.id.button1)
-        logOut = view.findViewById(R.id.button2)
 
-        title.setText(R.string.you_sure_for_exit)
-        desctiption.setText(R.string.all_info_you_profile_will_be_to_lose)
+        text_one.setText(R.string.you_sure_for_exit)
+        text_two.setText(R.string.all_info_you_profile_will_be_to_lose)
 
-        cancel.setText(R.string.cancel)
-        cancel.setOnClickListener {
+        button1.setText(R.string.cancel)
+        button1.setOnClickListener {
             dismiss()
         }
 
-        logOut.setText(R.string.logout)
-        logOut.setOnClickListener {
+        button2.setText(R.string.logout)
+        button2.setOnClickListener {
             viewModelLogOut.logOut()
         }
 
