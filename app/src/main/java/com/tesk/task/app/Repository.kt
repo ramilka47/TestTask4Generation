@@ -36,7 +36,8 @@ class Repository @Inject constructor(private val bd : AppDatabase, private val a
         jobFollowers = coroutine.launch {
             try{
                 val followers = api.getFollowers(user)
-                iListener.onSuccess(followers as R)
+                user.followers = followers
+                iListener.onSuccess(user as R)
             }catch (e : Exception){
                 iListener.onError(e)
             }

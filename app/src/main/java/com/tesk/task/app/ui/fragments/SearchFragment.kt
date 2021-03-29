@@ -20,28 +20,29 @@ import com.tesk.task.app.adapters.IShowUserHub
 import com.tesk.task.app.adapters.SearchAdapter
 import com.tesk.task.app.ui.dialogs.DialogExit
 import com.tesk.task.app.ui.dialogs.DialogLogin
-import com.tesk.task.app.viewmodels.AViewModel
-import com.tesk.task.app.viewmodels.FactoryViewModel
-import com.tesk.task.app.viewmodels.ViewModelGetMyFace
-import com.tesk.task.app.viewmodels.ViewModelMyFace
+import com.tesk.task.app.viewmodels.*
 import com.tesk.task.providers.api.impl.models.User
 import javax.inject.Inject
 
-class SearchFragment : Fragment() {
+class SearchFragment : Fragment(), IGetFollowers {
 
-    lateinit var viewModeleFactory: FactoryViewModel
+    lateinit var viewModelFactory: FactoryViewModel
     @Inject set
 
     private val viewModel by lazy {
-        viewModeleFactory.create(AViewModel.SearchViewModel::class.java)
+        viewModelFactory.create(AViewModel.SearchViewModel::class.java)
     }
 
     private val viewModelMyFace by lazy{
-        viewModeleFactory.create(ViewModelMyFace::class.java)
+        viewModelFactory.create(ViewModelMyFace::class.java)
     }
 
     private val viewModelGetMyFace by lazy {
-        viewModeleFactory.create(ViewModelGetMyFace::class.java)
+        viewModelFactory.create(ViewModelGetMyFace::class.java)
+    }
+
+    private val viewModelGetFollowers by lazy{
+        viewModelFactory.create(ViewModelGetFollowers::class.java)
     }
 
     private lateinit var recyclerView : RecyclerView
@@ -52,7 +53,7 @@ class SearchFragment : Fragment() {
     private lateinit var searchIcon : ImageView
     private lateinit var enterButton : Button
 
-    lateinit var iShowUserRepositories: IShowUserHub
+    lateinit var iShowUserHub: IShowUserHub
     private lateinit var searchAdapter: SearchAdapter
 
     private var query = ""
@@ -81,7 +82,7 @@ class SearchFragment : Fragment() {
 
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        searchAdapter = SearchAdapter(LayoutInflater.from(requireContext()))
+        searchAdapter = SearchAdapter(LayoutInflater.from(requireContext()), iShowUserHub, this)
         recyclerView.adapter = searchAdapter
 
         searchIcon.setOnClickListener {
@@ -188,6 +189,10 @@ class SearchFragment : Fragment() {
         viewModelMyFace.hideMyFaceLiveData.observe(this, { hideMyFace() })
 
         viewModelGetMyFace.successLiveData.observe(this, { showMyFace(it) })
+
+        viewModelGetFollowers.followersLiveData.observe(this, {
+
+        })
     }
 
     private fun search() {
@@ -219,5 +224,9 @@ class SearchFragment : Fragment() {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
         })
+    }
+
+    override fun getForUser(user: User) {
+        viewModelGetFollowers.getFollowers(user)
     }
 }

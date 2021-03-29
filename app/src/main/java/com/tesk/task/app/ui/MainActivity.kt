@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), IShowUserHub {
 
     private fun showSearch(){
         val fragment = SearchFragment().apply {
-            iShowUserRepositories = this@MainActivity
+            iShowUserHub = this@MainActivity
         }
         supportFragmentManager.beginTransaction().replace(R.id.container, fragment).commit()
     }

@@ -7,7 +7,7 @@ class User {
     val id : String
     val name : String
     val avatar : String
-    val followers : Int
+    var followers : Int
 
     constructor(userResult: UserResult){
         this.id = userResult.id

@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModel
 import com.tesk.task.app.Repository
 import com.tesk.task.providers.api.impl.models.User
 
-class ViewModelGetFollowers(private val repository: Repository) : ViewModel(), Repository.IListener<Int> {
+class ViewModelGetFollowers(private val repository: Repository) : ViewModel(), Repository.IListener<User> {
 
-    private val followers = MutableLiveData<Int>()
-    val followersLiveData : LiveData<Int> = followers
+    private val followers = MutableLiveData<User>()
+    val followersLiveData : LiveData<User> = followers
 
     private val loading = MutableLiveData<Boolean>()
     val loadingLiveData : LiveData<Boolean> = loading
@@ -27,7 +27,7 @@ class ViewModelGetFollowers(private val repository: Repository) : ViewModel(), R
         error.postValue(e)
     }
 
-    override fun onSuccess(succ: Int?) {
+    override fun onSuccess(succ: User?) {
         loading.postValue(false)
         followers.postValue(succ)
     }
