@@ -10,6 +10,7 @@ import com.tesk.task.providers.room.AppDatabase
 import com.tesk.task.providers.room.models.RepositoryEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import java.lang.Exception
@@ -25,87 +26,77 @@ class ViewModelRepository(private val gitService: GitService,
     private val mutableLiveDataOnEmptyList = MutableLiveData<Boolean>()
     private val mutableLiveDataApiException = MutableLiveData<Boolean>()
 
-    val liveDataRepositories : LiveData<List<Hub>> = mutableLiveDataRepositories
-    val liveDataLoading : LiveData<Boolean> = mutableLiveDataLoading
-    val liveDataError : LiveData<Exception> = mutableLiveDataError
-    val liveDataOnEmptyList : LiveData<Boolean> = mutableLiveDataOnEmptyList
-    val liveDataApiException : LiveData<Boolean> = mutableLiveDataApiException
+    val liveDataRepositories: LiveData<List<Hub>> = mutableLiveDataRepositories
+    val liveDataLoading: LiveData<Boolean> = mutableLiveDataLoading
+    val liveDataError: LiveData<Exception> = mutableLiveDataError
+    val liveDataOnEmptyList: LiveData<Boolean> = mutableLiveDataOnEmptyList
+    val liveDataApiException: LiveData<Boolean> = mutableLiveDataApiException
 
-    private var jobRepositories : Job? = null
+    private var jobRepositories: Job? = null
 
-    fun getRepositories(user : User) {
+    fun getRepositories(user: User) {
         jobRepositories?.cancel()
         jobRepositories = coroutineIO.launch {
             try {
                 mutableLiveDataLoading.postValue(true)
                 val repositories = getRepositoriesFromNet(user)
-                if (repositories.isNullOrEmpty()){
+                if (repositories.isNullOrEmpty()) {
                     mutableLiveDataOnEmptyList.postValue(true)
                     return@launch
                 } else {
                     addIntoBase(repositories, user)
                     mutableLiveDataRepositories.postValue(repositories)
                 }
-            } catch (e : UnknownHostException){
+            } catch (e: UnknownHostException) {
                 val repositories = getRepositoriesFromBase(user)
 
-                if (repositories.isNullOrEmpty()){
+                if (repositories.isNullOrEmpty()) {
                     mutableLiveDataError.postValue(e)
                 } else {
                     mutableLiveDataRepositories.postValue(repositories)
                 }
-            } catch (e : JSONException){
+            } catch (e: JSONException) {
                 mutableLiveDataApiException.postValue(true)
             }
         }
     }
 
-    private suspend fun getRepositoriesFromNet(user: User) : List<Hub> {
-        val trueList = mutableListOf<Hub>()
-        val call = gitService.getRepositories(user.name)
-        val responseBody = call.execute().body()
-        val list = responseBody
-
-        list?.forEach { hub->
-            trueList.add(Hub(hub))
-        }
-
-        return trueList
+    override fun onCleared() {
+        super.onCleared()
+        coroutineIO.cancel()
     }
 
-    private suspend fun getRepositoriesFromBase(user: User) : List<Hub>{
-        val hubDao = bd.hubDao()
-        val trueList = mutableListOf<Hub>()
-        val listEntity = hubDao.getAllByUserName(user.name)
+    private suspend fun getRepositoriesFromNet(user: User) = gitService
+            .getRepositories(user.name)
+            .map {
+                Hub(it)
+            }
 
-        listEntity.forEach { entity->
-            trueList.add(Hub(entity))
+    private suspend fun getRepositoriesFromBase(user: User): List<Hub> = with(bd.hubDao()) {
+        this.getAllByUserName(user.name).map {
+            Hub(it)
         }
-
-        return trueList
     }
 
-    private suspend fun addIntoBase(list : List<Hub>, user: User){
-        val hubDao = bd.hubDao()
-        list.forEach {hub->
+    private suspend fun addIntoBase(list: List<Hub>, user: User) = with(bd.hubDao()) {
+        list.forEach {
             val entity = RepositoryEntity(
-                    hub.id,
-                    hub.name,
-                    hub.desctiption,
-                    hub.lastCommit.toString(),
-                    hub.currentFork,
-                    hub.countOfFork,
-                    hub.rating,
-                    hub.language,
+                    it.id,
+                    it.name,
+                    it.desctiption,
+                    it.lastCommit.toString(),
+                    it.currentFork,
+                    it.countOfFork,
+                    it.rating,
+                    it.language,
                     user.name
             )
 
-            if (hubDao.getById(hub.id) != null){
-                hubDao.update(entity)
+            if (this.getById(it.id) != null) {
+                this.update(entity)
             } else {
-                hubDao.insert(entity)
+                this.insert(entity)
             }
         }
     }
-
 }

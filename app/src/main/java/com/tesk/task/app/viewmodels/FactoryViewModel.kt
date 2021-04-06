@@ -18,6 +18,9 @@ class FactoryViewModel @Inject constructor(private val bd : AppDatabase, private
             ViewModelRepository::class.java->{
                 ViewModelRepository(gitService, bd, coroutineIO)
             }
+            ViewModelLogout::class.java->{
+                ViewModelLogout(gitService, bd, coroutineIO)
+            }
             else ->{
                 null
             }

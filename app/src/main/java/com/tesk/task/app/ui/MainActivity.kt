@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.tesk.task.R
+import com.tesk.task.app.Application
 import com.tesk.task.app.adapters.IShowUserHub
 import com.tesk.task.app.ui.fragments.HubFragment
 import com.tesk.task.app.ui.fragments.SearchFragment
@@ -14,7 +15,9 @@ class MainActivity : AppCompatActivity(), IShowUserHub {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        (application as Application).appComponent.inject(this)
         supportActionBar?.hide()
+
         switch()
     }
 

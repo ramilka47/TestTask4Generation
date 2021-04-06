@@ -3,10 +3,30 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <FrameLayout
+        android:background="@color/blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:id="@+id/box_of_my_account">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/title_user_name"
+            android:visibility="visible"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:padding="12dp"/>
+
+    </FrameLayout>
+
     <include
         android:id="@+id/inc_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/box_of_my_account"
         layout="@layout/search_item"/>
 
     <FrameLayout

@@ -27,4 +27,8 @@
     <string name="count_of_requests_get_a_higher_rate_limit">Сервер ругается. Количество запросов превышено, попробуйте позже.</string>
     <string name="write_anything">Введите что-нибудь.</string>
     <string name="user_s">Пользователь %s</string>
+    <string name="error_in_data_format_login_or_password">Неверный формат логин или пароль.</string>
+    <string name="github_app_id">8975f86702a054fe5f6e</string>
+    <string name="github_app_secret">3d025fa3ecaaea260aa1b7069deb0d3b8a68e71b</string>
+    <string name="github_app_url">schema://com.test.task</string>
 </resources>

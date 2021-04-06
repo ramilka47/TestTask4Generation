@@ -16,6 +16,7 @@ import com.tesk.task.app.Application
 import com.tesk.task.app.adapters.IShowUserHub
 import com.tesk.task.app.adapters.SearchAdapter
 import com.tesk.task.app.afterTextChanged
+import com.tesk.task.app.ui.dialogs.DialogExit
 import com.tesk.task.app.viewmodels.*
 import com.tesk.task.providers.git.models.User
 import kotlinx.android.synthetic.main.item_inner_search_t_result.*
@@ -24,6 +25,10 @@ import kotlinx.android.synthetic.main.search_item.*
 import javax.inject.Inject
 
 class SearchFragment : Fragment() {
+
+    companion object{
+        private val TAG_MY_FACE = "my_face"
+    }
 
     lateinit var viewModelFactory: FactoryViewModel
     @Inject set
@@ -74,7 +79,19 @@ class SearchFragment : Fragment() {
             query = it
         }
 
+        login.setOnClickListener {
+            gitOauth()
+        }
+
         subscribe()
+    }
+
+
+
+    private fun gitOauth(){
+        viewModel.login(getString(R.string.github_app_id), {intent->
+            startActivityForResult(intent, 1000)
+        })
     }
 
     private fun subscribe(){
@@ -87,6 +104,8 @@ class SearchFragment : Fragment() {
         viewModel.liveDataShowStartMessage.observe(this, { showStart() })
 
         viewModel.liveDataApiException.observe(this, { showOnApiException() })
+        viewModel.liveDataShowUser.observe(this, { name-> showMyFace(name) })
+        viewModel.liveDataHideUser.observe(this, { hideMyFace() })
     }
 
     private fun search() {
@@ -100,8 +119,41 @@ class SearchFragment : Fragment() {
         viewModel.search(query)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.getMyProfile()
+
+        val intent =  requireActivity().intent
+        if (intent?.data?.toString()?.startsWith(getString(R.string.github_app_url)) == true) {
+            viewModel.getAccessTokenGitHub(
+                    intent,
+                    getString(R.string.github_app_id),
+                    getString(R.string.github_app_secret))
+        }
+    }
+
     private fun showRepository(user: User){
         iShowUserHub.showRepo(user)
+    }
+
+    private fun hideMyFace() {
+        login.setText(R.string.enter)
+        box_of_my_account.visibility = View.GONE
+
+        login.setOnClickListener {
+            gitOauth()
+        }
+    }
+
+    private fun showMyFace(name : String){
+        login.setText(R.string.logout)
+        box_of_my_account.visibility = View.VISIBLE
+
+        title_user_name.text = String.format(getText(R.string.welcome).toString(), name)
+        login.setOnClickListener {
+            showDialog(DialogExit())
+        }
     }
 
     private fun showDialog(dialogFragment: DialogFragment){
