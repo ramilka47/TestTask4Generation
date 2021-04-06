@@ -2,35 +2,21 @@ package com.tesk.task.app.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.tesk.task.app.Repository
+import com.tesk.task.providers.git.GitService
+import com.tesk.task.providers.room.AppDatabase
+import kotlinx.coroutines.CoroutineScope
+import retrofit2.Retrofit
 import javax.inject.Inject
 
-class FactoryViewModel @Inject constructor(private val repository: Repository) : ViewModelProvider.Factory {
-
-    private val viewModelMyFace = ViewModelMyFace()
+class FactoryViewModel @Inject constructor(private val bd : AppDatabase, private val gitService: GitService, private val coroutineIO : CoroutineScope) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return when(modelClass){
-            AViewModel.SearchViewModel::class.java->{
-                AViewModel.SearchViewModel(repository)
+            ViewModelSearch::class.java->{
+                ViewModelSearch(gitService, bd, coroutineIO)
             }
-            AViewModel.GetHubViewModel::class.java->{
-                AViewModel.GetHubViewModel(repository)
-            }
-            ViewModelAuthorize::class.java->{
-                ViewModelAuthorize(repository)
-            }
-            ViewModelLogOut::class.java->{
-                ViewModelLogOut(repository)
-            }
-            ViewModelGetFollowers::class.java->{
-                ViewModelGetFollowers(repository)
-            }
-            ViewModelGetMyFace::class.java->{
-                ViewModelGetMyFace(repository)
-            }
-            ViewModelMyFace::class.java->{
-                viewModelMyFace
+            ViewModelRepository::class.java->{
+                ViewModelRepository(gitService, bd, coroutineIO)
             }
             else ->{
                 null

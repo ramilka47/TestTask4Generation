@@ -3,16 +3,13 @@ package com.tesk.task.app.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.tesk.task.R
-import com.tesk.task.app.ui.fragments.IGetFollowers
-import com.tesk.task.providers.api.impl.models.User
+import com.tesk.task.providers.git.models.User
 import kotlinx.android.synthetic.main.item_user.view.*
 
-class SearchAdapter(private val inflater: LayoutInflater, private val iShowUserHub: IShowUserHub, private val iGetFollowers : IGetFollowers) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
+class SearchAdapter(private val inflater: LayoutInflater, private val showRepository : (user : User)->Unit) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
 
     private var users = mutableListOf<User>()
 
@@ -20,7 +17,6 @@ class SearchAdapter(private val inflater: LayoutInflater, private val iShowUserH
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val user = users[position]
-        iGetFollowers.getForUser(user)
         holder.bind(user)
     }
 
@@ -40,7 +36,7 @@ class SearchAdapter(private val inflater: LayoutInflater, private val iShowUserH
 
         private fun onClickMainView(){
             val user = users[adapterPosition]
-            iShowUserHub.showRepo(user)
+            showRepository(user)
         }
 
         fun bind(user: User){

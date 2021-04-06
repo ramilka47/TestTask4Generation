@@ -10,8 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:padding="12dp"
-        android:layout_toLeftOf="@id/login">
+        android:padding="12dp">
 
         <EditText
             android:layout_width="match_parent"
@@ -35,17 +34,5 @@
             android:src="@android:drawable/ic_menu_search" />
 
     </RelativeLayout>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:id="@+id/login"
-        android:background="@null"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="8dp"
-        android:textColor="@color/white"
-        android:text="@string/enter"
-        />
 
 </RelativeLayout>

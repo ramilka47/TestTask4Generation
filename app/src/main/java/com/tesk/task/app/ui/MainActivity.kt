@@ -7,7 +7,7 @@ import com.tesk.task.R
 import com.tesk.task.app.adapters.IShowUserHub
 import com.tesk.task.app.ui.fragments.HubFragment
 import com.tesk.task.app.ui.fragments.SearchFragment
-import com.tesk.task.providers.api.impl.models.User
+import com.tesk.task.providers.git.models.User
 
 class MainActivity : AppCompatActivity(), IShowUserHub {
 
@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity(), IShowUserHub {
     }
 
     override fun onBackPressed() {
-        val fragments = supportFragmentManager.fragments
         if (supportFragmentManager.backStackEntryCount > 1){
             supportFragmentManager.popBackStack()
         } else {

@@ -4,22 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tesk.task.R
 import com.tesk.task.app.Application
 import com.tesk.task.app.adapters.RepositoryAdapter
-import com.tesk.task.app.viewmodels.AViewModel
 import com.tesk.task.app.viewmodels.FactoryViewModel
-import com.tesk.task.providers.api.impl.models.Hub
-import com.tesk.task.providers.api.impl.models.User
+import com.tesk.task.app.viewmodels.ViewModelRepository
+import com.tesk.task.providers.git.models.Hub
+import com.tesk.task.providers.git.models.User
 import kotlinx.android.synthetic.main.item_inner_search_t_result.*
 import kotlinx.android.synthetic.main.item_user.*
 import kotlinx.android.synthetic.main.repository_fragment.*
-import org.json.JSONException
-import java.io.IOException
 import javax.inject.Inject
 
 class HubFragment : Fragment() {
@@ -28,7 +25,7 @@ class HubFragment : Fragment() {
         @Inject set
 
     private val viewModel by lazy {
-        viewModuleFactory.create(AViewModel.GetHubViewModel::class.java)
+        viewModuleFactory.create(ViewModelRepository::class.java)
     }
 
     lateinit var user : User
@@ -38,6 +35,7 @@ class HubFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (requireActivity().application as Application).appComponent.inject(this)
+        retainInstance = true
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -52,14 +50,11 @@ class HubFragment : Fragment() {
         recycler_view.layoutManager = LinearLayoutManager(requireContext())
         recycler_view.adapter = adapter
 
-        name.text = String.format(getString(R.string.user_s), user.name)
+        title_user_name.text = String.format(getString(R.string.user_s), user.name)
 
-        getData()
         subscribe()
-    }
 
-    private fun getData(){
-        viewModel.getHubs(user)
+        viewModel.getRepositories(user)
     }
 
     private fun showInner(resource : Int){
@@ -92,19 +87,15 @@ class HubFragment : Fragment() {
         showInner(R.string.user_have_not_repositories)
     }
 
+    private fun showOnApiException(){
+        Toast.makeText(requireContext(), R.string.count_of_requests_get_a_higher_rate_limit, Toast.LENGTH_SHORT).show()
+    }
+
     private fun subscribe(){
-        viewModel.loadingLiveData.observe(this, { showLoading() })
-        viewModel.isEmptyListLiveData.observe(this, { showOnEmpty() })
-        viewModel.errorLiveData.observe(this, {
-            when (it) {
-                is JSONException -> {
-                    Toast.makeText(requireContext(), getString(R.string.count_of_requests_get_a_higher_rate_limit), Toast.LENGTH_SHORT).show()
-                }
-                is IOException -> {
-                    Toast.makeText(requireContext(), getString(R.string.internet_access_worn), Toast.LENGTH_SHORT).show()
-                }
-            }
-        })
-        viewModel.dataLiveData.observe(this, { showHubs(it) })
+        viewModel.liveDataRepositories.observe(this, { list-> showHubs(list) })
+        viewModel.liveDataLoading.observe(this, { showLoading() })
+        viewModel.liveDataError.observe(this, { showError() })
+        viewModel.liveDataOnEmptyList.observe(this, { showOnEmpty() })
+        viewModel.liveDataApiException.observe(this, { showOnApiException() })
     }
 }

@@ -1,11 +1,9 @@
 package com.tesk.task.app
 
 import android.app.Application
-import androidx.room.Room
 import com.tesk.task.app.components.ApplicationComponent
 import com.tesk.task.app.components.DaggerApplicationComponent
 import com.tesk.task.app.modules.*
-import com.tesk.task.providers.room.AppDatabase
 
 class Application : Application() {
 
@@ -17,8 +15,8 @@ class Application : Application() {
         appComponent = DaggerApplicationComponent
                 .builder()
                 .moduleApp(ModuleApp(this))
-                .moduleIHttpClient(ModuleIHttpClient())
-                .moduleApi(ModuleApi())
+                .moduleCoroutineScope(ModuleCoroutineScope())
+                .moduleRetrofit(ModuleRetrofit())
                 .moduleBd(ModuleBd())
                 .moduleViewModelFactory(ModuleViewModelFactory())
                 .build()

@@ -1,19 +1,26 @@
-package com.tesk.task.providers.api.impl.models
+package com.tesk.task.providers.git.models
 
-import com.tesk.task.providers.api.impl.result.UserResult
+import com.tesk.task.providers.git.response.UserResponse
 import com.tesk.task.providers.room.models.UserEntity
 
 class User {
     val id : String
     val name : String
     val avatar : String
-    var followers : Int
+    val followers : Int
 
-    constructor(userResult: UserResult){
+    constructor(userResult: UserResponse){
         this.id = userResult.id
         this.name = userResult.login
         this.avatar = userResult.avatar_url
         this.followers = 0 // todo сделать запрос по адресу...
+    }
+
+    constructor(userResult: UserResponse, followers : Int){
+        this.id = userResult.id
+        this.name = userResult.login
+        this.avatar = userResult.avatar_url
+        this.followers = followers // todo сделать запрос по адресу...
     }
 
     constructor(userEntity: UserEntity){

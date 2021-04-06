@@ -1,6 +1,6 @@
-package com.tesk.task.providers.api.impl.models
+package com.tesk.task.providers.git.models
 
-import com.tesk.task.providers.api.impl.result.HubResult
+import com.tesk.task.providers.git.response.HubResponse
 import com.tesk.task.providers.room.models.RepositoryEntity
 import java.util.*
 
@@ -14,7 +14,7 @@ class Hub {
     val rating : Int
     val language : String
 
-    constructor(hubResult: HubResult){
+    constructor(hubResult: HubResponse){
         this.id = hubResult.id
         this.name = hubResult.name
         this.desctiption = hubResult.description

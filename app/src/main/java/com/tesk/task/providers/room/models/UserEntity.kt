@@ -12,4 +12,4 @@ data class UserEntity(@PrimaryKey val id :String,
                       val name : String,
                       val avatar : String,
                       val followers : Int,
-                      val query : String)
+                      val query : String)//todo исправить, сделать базу query и userId / query (делать join)

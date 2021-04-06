@@ -3,10 +3,9 @@ package com.tesk.task.app.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.tesk.task.R
-import com.tesk.task.providers.api.impl.models.Hub
+import com.tesk.task.providers.git.models.Hub
 import kotlinx.android.synthetic.main.item_repo.view.*
 
 class RepositoryAdapter(private val inflater: LayoutInflater) : RecyclerView.Adapter<RepositoryAdapter.RepoHolder>() {
