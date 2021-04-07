@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.tesk.task.R
 import com.tesk.task.app.Application
+import com.tesk.task.app.ui.fragments.SearchFragment
 import com.tesk.task.app.viewmodels.FactoryViewModel
 import com.tesk.task.app.viewmodels.ViewModelLogout
 import kotlinx.android.synthetic.main.dialog_exit.*
@@ -47,23 +48,23 @@ class DialogExit : DialogFragment() {
 
         button2.setText(R.string.logout)
         button2.setOnClickListener {
-            viewModel.logout()
+            viewModel.logout(requireContext())
         }
 
         subscribe()
     }
 
     private fun onSuccess(){
+        targetFragment?.onActivityResult(targetRequestCode, SearchFragment.RESULT_CODE, null)
         dismiss()
     }
 
     private fun showLoading(){
-        //todo
     }
 
     private fun showError(){
+        targetFragment?.onActivityResult(targetRequestCode, SearchFragment.RESULT_CODE_ERROR, null)
         dismiss()
-        //todo
     }
 
     private fun subscribe(){

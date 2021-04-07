@@ -4,4 +4,4 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class MyFaceEntity(@PrimaryKey val id : Long, val token : String, val name : String?)
+data class MyFaceEntity(@PrimaryKey val id : Long, val name : String?)

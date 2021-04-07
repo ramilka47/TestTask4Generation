@@ -4,6 +4,7 @@ import com.tesk.task.providers.git.response.AccessTokenResponse
 import com.tesk.task.providers.git.response.HubResponse
 import com.tesk.task.providers.git.response.SearchResponse
 import com.tesk.task.providers.git.response.UserResponse
+import retrofit2.Call
 import retrofit2.http.*
 
 interface GitService {
@@ -28,7 +29,8 @@ interface GitService {
         @Field("redirect_uri") redirectUri : String?,
         @Field("state") state : String?) : AccessTokenResponse
 
+
     @GET("/user")
-    suspend fun myProfile(@Query("access_token") accessToken : String) : UserResponse
+    suspend fun myProfile(@Header("Authorization") accessToken : String) : UserResponse
 
 }

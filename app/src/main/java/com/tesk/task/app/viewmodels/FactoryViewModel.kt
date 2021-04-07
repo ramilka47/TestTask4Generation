@@ -1,5 +1,6 @@
 package com.tesk.task.app.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.tesk.task.providers.git.GitService
@@ -19,7 +20,7 @@ class FactoryViewModel @Inject constructor(private val bd : AppDatabase, private
                 ViewModelRepository(gitService, bd, coroutineIO)
             }
             ViewModelLogout::class.java->{
-                ViewModelLogout(gitService, bd, coroutineIO)
+                ViewModelLogout()
             }
             else ->{
                 null

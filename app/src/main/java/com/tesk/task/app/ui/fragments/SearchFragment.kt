@@ -1,7 +1,9 @@
 package com.tesk.task.app.ui.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +29,9 @@ import javax.inject.Inject
 class SearchFragment : Fragment() {
 
     companion object{
-        private val TAG_MY_FACE = "my_face"
+        private val REQUEST_CODE = 123
+        val RESULT_CODE = 321
+        val RESULT_CODE_ERROR = 213
     }
 
     lateinit var viewModelFactory: FactoryViewModel
@@ -86,8 +90,6 @@ class SearchFragment : Fragment() {
         subscribe()
     }
 
-
-
     private fun gitOauth(){
         viewModel.login(getString(R.string.github_app_id), {intent->
             startActivityForResult(intent, 1000)
@@ -119,17 +121,25 @@ class SearchFragment : Fragment() {
         viewModel.search(query)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_CODE) {
+            viewModel.getMyProfile(requireContext())
+        }
+    }
+
     override fun onResume() {
         super.onResume()
 
-        viewModel.getMyProfile()
+        viewModel.getMyProfile(requireContext())
 
-        val intent =  requireActivity().intent
+        val intent = requireActivity().intent
         if (intent?.data?.toString()?.startsWith(getString(R.string.github_app_url)) == true) {
             viewModel.getAccessTokenGitHub(
                     intent,
                     getString(R.string.github_app_id),
-                    getString(R.string.github_app_secret))
+                    getString(R.string.github_app_secret), requireContext())
         }
     }
 
@@ -152,12 +162,14 @@ class SearchFragment : Fragment() {
 
         title_user_name.text = String.format(getText(R.string.welcome).toString(), name)
         login.setOnClickListener {
-            showDialog(DialogExit())
+            val dialog= DialogExit()
+            dialog.setTargetFragment(this, REQUEST_CODE)
+            showDialog(dialog)
         }
     }
 
     private fun showDialog(dialogFragment: DialogFragment){
-        dialogFragment.show(childFragmentManager.beginTransaction(), "")
+        dialogFragment.show(fragmentManager?.beginTransaction()?:return, "")
     }
 
     private fun showUsers(list : List<User>){

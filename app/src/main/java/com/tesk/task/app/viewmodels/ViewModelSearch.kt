@@ -1,5 +1,6 @@
 package com.tesk.task.app.viewmodels
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -12,10 +13,7 @@ import com.tesk.task.providers.git.response.UserResponse
 import com.tesk.task.providers.room.AppDatabase
 import com.tesk.task.providers.room.models.MyFaceEntity
 import com.tesk.task.providers.room.models.UserEntity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.HttpUrl
 import org.json.JSONException
 import java.lang.Exception
@@ -24,6 +22,16 @@ import java.net.UnknownHostException
 class ViewModelSearch(private val gitService: GitService,
                                           private val bd : AppDatabase,
                                           private val coroutineIO : CoroutineScope) : ViewModel() {
+
+    companion object{
+        private val URL_ACCESS_TOKEN_GIT = "https://github.com/login/oauth/access_token"
+        private val PATHS_LOGIN = arrayOf("login", "oauth", "authorize")
+        private val SCHEME_LOGIN = "https"
+        private val HOST_LOGIN = "github.com"
+        private val CLIENT_ID = "client_id"
+        private val SCOPE = "scope"
+        private val USER_EMAIL = "user:email"
+    }
 
     private val mutableLiveDataOfListUsers = MutableLiveData<List<User>>()
     private val mutableLiveDataOfLoading = MutableLiveData<Boolean>()
@@ -86,7 +94,7 @@ class ViewModelSearch(private val gitService: GitService,
         }
     }
 
-    fun getAccessTokenGitHub(intent : Intent, appId: String, clientSecret: String){
+    fun getAccessTokenGitHub(intent : Intent, appId: String, clientSecret: String, context: Context){
         val data = intent.data
         val code = data?.getQueryParameter("code")
         val state = data?.getQueryParameter("state")
@@ -103,8 +111,13 @@ class ViewModelSearch(private val gitService: GitService,
                 val accessResult = getAccessTokenGitHub(appId, clientSecret, code, redirectUri, state)
                 val token = accessResult.access_token
 
-                addAccessTokenIntoBase(token)
-                getMyAccount()
+                addAccessTokenIntoPref(token, context)
+
+                withContext(Dispatchers.Main){
+                    intent.data = null
+                }
+
+                getMyProfile(context)
             }catch (e : Exception){
                 e.printStackTrace()
             }
@@ -112,12 +125,11 @@ class ViewModelSearch(private val gitService: GitService,
     }
 
     fun login(appId : String, startActivity : (Intent)->Unit){
-        val paths = arrayOf("login", "oauth", "authorize")
-        val params = mapOf("client_id" to appId, "scope" to "user:email")
+        val params = mapOf(CLIENT_ID to appId, SCOPE to USER_EMAIL)
         val httpUrl : HttpUrl = HttpUrl.Builder().apply {
-            scheme("https")
-            host("github.com")
-            paths.forEach {
+            scheme(SCHEME_LOGIN)
+            host(HOST_LOGIN)
+            PATHS_LOGIN.forEach {
                 addPathSegment(it)
             }
             params.forEach { t, u ->
@@ -129,11 +141,11 @@ class ViewModelSearch(private val gitService: GitService,
         startActivity(intent)
     }
 
-    fun getMyProfile(){
+    fun getMyProfile(context: Context){
         jobGetMyProfile?.cancel()
 
         jobGetMyProfile = coroutineIO.launch {
-            getMyAccount()
+            getMyAccount(context)
         }
     }
 
@@ -142,48 +154,55 @@ class ViewModelSearch(private val gitService: GitService,
         coroutineIO.cancel()
     }
 
-    private suspend fun addAccessTokenIntoBase(token : String) = with(bd.myFaceDao()){
-        val DEFAULT_NAME = ""
-        val entity = this.getById(0)
-        if (entity != null){
-            this.update(MyFaceEntity(entity.id, entity.token, DEFAULT_NAME))
-        } else {
-            this.insert(MyFaceEntity(0, token, DEFAULT_NAME))
-        }
-    }
+    private suspend fun addAccessTokenIntoPref(token : String, context: Context) =
+            with(PreferenceUtil.gitPreference(context)) {
+                val tokenPref = this.getString(PreferenceUtil.TOKEN, null)
+                with(this.edit()) {
+                    if (tokenPref.isNullOrEmpty()) {
+                        this.remove(PreferenceUtil.TOKEN)
+                        this.apply()
+                    }
+                    this.putString(PreferenceUtil.TOKEN, token)
+                    this.apply()
+                }
+            }
 
-    private suspend fun getMyAccount() {
+    private suspend fun getMyAccount(context: Context) {
         val myProfile = getMyProfileFromBase()
         if (myProfile.isNullOrEmpty()) {
-            val accessToken = getAccessTokenFromBase()
+            val accessToken = getAccessTokenFromPref(context)
             if (accessToken != null) {
                 try {
-                    val profile = getMyProfileFromNet(accessToken)
-
+                    val profile = getMyProfileFromNet("token $accessToken")
                     addMyProfileIntoBase(profile.login)
                     mutableLiveDataShowUser.postValue(profile.login)
                 } catch (e: Exception) {
                     e.printStackTrace()
                     mutableLiveDataHideUser.postValue(true)
                 }
+            } else {
+                mutableLiveDataHideUser.postValue(true)
             }
         }
     }
 
-    private suspend fun addMyProfileIntoBase(name : String) = with(bd.myFaceDao()){
-        val entity = this.getById(0)
-        if (entity != null){
-            this.update(MyFaceEntity(entity.id, entity.token, name))
-        }
-    }
+    private suspend fun addMyProfileIntoBase(name : String) =
+            with(bd.myFaceDao()) {
+                val entity = this.getById(0)
+                if (entity != null) {
+                    this.update(MyFaceEntity(entity.id, name))
+                }
+            }
 
-    private suspend fun getAccessTokenFromBase() : String? = with(bd.myFaceDao()){
-        this.getById(0)?.token
-    }
+    private suspend fun getAccessTokenFromPref(context: Context) : String? =
+            with(PreferenceUtil.gitPreference(context)) {
+                this.getString(PreferenceUtil.TOKEN, null)
+            }
 
-    private suspend fun getMyProfileFromBase() : String? = with(bd.myFaceDao()){
-        this.getById(0)?.name
-    }
+    private suspend fun getMyProfileFromBase() : String? =
+            with(bd.myFaceDao()) {
+                this.getById(0)?.name
+            }
 
     private suspend fun getUsersFromNet(query: String) = gitService
             .getUsers(query)
@@ -212,7 +231,7 @@ class ViewModelSearch(private val gitService: GitService,
     private suspend fun getMyProfileFromNet(accessToken : String) = gitService.myProfile(accessToken)
 
     private suspend fun getAccessTokenGitHub(appId: String, clientSecret: String, code : String, redirectUri : String?, state : String?) = gitService.accessToken(
-            "https://github.com/login/oauth/access_token",
+            URL_ACCESS_TOKEN_GIT,
             appId,
             clientSecret,
             code,
