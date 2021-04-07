@@ -66,11 +66,12 @@ class ViewModelRepository(private val gitService: GitService,
         coroutineIO.cancel()
     }
 
-    private suspend fun getRepositoriesFromNet(user: User) = gitService
-            .getRepositories(user.name)
-            .map {
-                Hub(it)
-            }
+    private suspend fun getRepositoriesFromNet(user: User) =
+            gitService
+                    .getRepositories(user.name)
+                    .map {
+                        Hub(it)
+                    }
 
     private suspend fun getRepositoriesFromBase(user: User): List<Hub> = with(bd.hubDao()) {
         this.getAllByUserName(user.name).map {

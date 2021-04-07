@@ -19,13 +19,13 @@ class ViewModelLogout(private val sharedPreferences: SharedPreferences) : ViewMo
     val liveDataLoading : LiveData<Boolean> = mutableLiveDataLoading
     val liveDataError : LiveData<Boolean> = mutableLiveDataError
 
-    fun logout(){
-        val editor = sharedPreferences.edit()
+    fun logout() =
+            with(sharedPreferences.edit()) {
 
-        editor.remove(PreferenceUtil.TOKEN)
-        editor.apply()
+                this.remove(PreferenceUtil.TOKEN)
+                this.apply()
 
-        mutableLiveDataSuccess.postValue(true)
-    }
+                mutableLiveDataSuccess.postValue(true)
+            }
 
 }

@@ -171,8 +171,8 @@ class ViewModelSearch(private val gitService: GitService,
             }
 
     private suspend fun getMyAccount() {
-        val myProfile = getMyProfileFromBase()
-        if (myProfile.isNullOrEmpty()) {
+        val profile = getMyProfileFromBase()
+        if (profile.isNullOrEmpty()) {
             val accessToken = getAccessTokenFromPref()
             if (accessToken != null) {
                 try {
@@ -186,14 +186,15 @@ class ViewModelSearch(private val gitService: GitService,
             } else {
                 mutableLiveDataHideUser.postValue(true)
             }
+        } else {
+            mutableLiveDataShowUser.postValue(profile)
         }
     }
 
     private suspend fun addMyProfileIntoBase(name : String) =
             with(bd.myFaceDao()) {
-                val entity = this.getById(0)
-                if (entity != null) {
-                    this.update(MyFaceEntity(entity.id, name))
+                this.getById(0)?.let {
+                    update(MyFaceEntity(it.id, name))
                 }
             }
 
@@ -207,41 +208,55 @@ class ViewModelSearch(private val gitService: GitService,
                 this.getById(0)?.name
             }
 
-    private suspend fun getUsersFromNet(query: String) = gitService
+    private suspend fun getUsersFromNet(query: String) =
+            gitService
             .getUsers(query)
             .items.map {
-                User(it).apply {
-                    followers = try { getFollower(it) } catch (e: JSONException) { 0 }
+                        User(it).apply {
+                            followers = try {
+                                getFollower(it)
+                            } catch (e: JSONException) {
+                                0
+                            }
+                        }
+                    }
+
+    private suspend fun getUsersFromBase(query: String) =
+            with(bd.usersDao()) {
+                this.getByQuery(query).map {
+                    User(it)
                 }
             }
 
-    private suspend fun getUsersFromBase(query: String) = with(bd.usersDao()){
-        this.getByQuery(query).map {
-            User(it)
-        }
-    }
-
-    private suspend fun addIntoBase(list : List<User>, query: String) = with(bd.usersDao()){
-        list.forEach {
-            val userEntity = UserEntity(it.id, it.name, it.avatar, it.followers, query)
-            if (this.getById(it.id) != null){
-                this.update(userEntity)
-            } else
-                this.insert(userEntity)
-        }
-    }
+    private suspend fun addIntoBase(list : List<User>, query: String) =
+            with(bd.usersDao()) {
+                list.forEach {
+                    val userEntity = UserEntity(it.id, it.name, it.avatar, it.followers, query)
+                    if (this.getById(it.id) != null) {
+                        this.update(userEntity)
+                    } else
+                        this.insert(userEntity)
+                }
+            }
 
     private suspend fun getMyProfileFromNet(accessToken : String) = gitService.myProfile(accessToken)
 
-    private suspend fun getAccessTokenGitHub(appId: String, clientSecret: String, code : String, redirectUri : String?, state : String?) = gitService.accessToken(
-            URL_ACCESS_TOKEN_GIT,
-            appId,
-            clientSecret,
-            code,
-            redirectUri,
-            state
-    )
+    private suspend fun getAccessTokenGitHub(appId: String,
+                                             clientSecret: String,
+                                             code : String,
+                                             redirectUri : String?, state : String?) =
+            gitService.accessToken(
+                    URL_ACCESS_TOKEN_GIT,
+                    appId,
+                    clientSecret,
+                    code,
+                    redirectUri,
+                    state
+            )
 
-    private suspend fun getFollower(userResponse: UserResponse) : Int = gitService.getFollowers(userResponse.login).size
+    private suspend fun getFollower(userResponse: UserResponse) : Int =
+            gitService
+                    .getFollowers(userResponse.login)
+                    .size
 
 }

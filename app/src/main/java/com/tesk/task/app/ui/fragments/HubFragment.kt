@@ -30,7 +30,7 @@ class HubFragment : Fragment() {
 
     lateinit var user : User
 
-    private lateinit var adapter : RepositoryAdapter
+    private lateinit var repositoryAdapter : RepositoryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,10 +45,12 @@ class HubFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = RepositoryAdapter(LayoutInflater.from(requireContext()))
-        recycler_view.setHasFixedSize(true)
-        recycler_view.layoutManager = LinearLayoutManager(requireContext())
-        recycler_view.adapter = adapter
+        repositoryAdapter = RepositoryAdapter(LayoutInflater.from(requireContext()))
+        recycler_view.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = repositoryAdapter
+        }
 
         title_user_name.text = String.format(getString(R.string.user_s), user.name)
 
@@ -79,7 +81,7 @@ class HubFragment : Fragment() {
         recycler_view.visibility = View.VISIBLE
         inner_frame.visibility = View.GONE
 
-        adapter.refresh(list)
+        repositoryAdapter.refresh(list)
         recycler_view.adapter?.notifyDataSetChanged()
     }
 
@@ -92,10 +94,12 @@ class HubFragment : Fragment() {
     }
 
     private fun subscribe(){
-        viewModel.liveDataRepositories.observe(this, { list-> showHubs(list) })
-        viewModel.liveDataLoading.observe(this, { showLoading() })
-        viewModel.liveDataError.observe(this, { showError() })
-        viewModel.liveDataOnEmptyList.observe(this, { showOnEmpty() })
-        viewModel.liveDataApiException.observe(this, { showOnApiException() })
+        viewModel.apply {
+            liveDataRepositories.observe(this@HubFragment, { list-> showHubs(list) })
+            liveDataLoading.observe(this@HubFragment, { showLoading() })
+            liveDataError.observe(this@HubFragment, { showError() })
+            liveDataOnEmptyList.observe(this@HubFragment, { showOnEmpty() })
+            liveDataApiException.observe(this@HubFragment, { showOnApiException() })
+        }
     }
 }

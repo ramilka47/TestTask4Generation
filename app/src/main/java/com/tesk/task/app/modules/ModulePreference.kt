@@ -11,6 +11,7 @@ class ModulePreference {
 
     @Singleton
     @Provides
-    fun providesPreference(context: Context) = context.getSharedPreferences(PreferenceUtil.APP_GIT_PREFERENCE, Context.MODE_PRIVATE)
+    fun providesPreference(context: Context) =
+            context.getSharedPreferences(PreferenceUtil.APP_GIT_PREFERENCE, Context.MODE_PRIVATE)
 
 }

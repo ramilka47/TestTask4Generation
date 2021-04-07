@@ -12,4 +12,5 @@ class ModuleApp(private val application: Application) {
     @Provides
     @Singleton
     fun providesApp() : Context = application
+
 }

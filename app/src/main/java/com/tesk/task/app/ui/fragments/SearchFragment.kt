@@ -60,28 +60,34 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recycler_view.setHasFixedSize(true)
-        recycler_view.layoutManager = LinearLayoutManager(requireContext())
         searchAdapter = SearchAdapter(LayoutInflater.from(requireContext()), {user-> showRepository(user) })
-        recycler_view.adapter = searchAdapter
+        recycler_view.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(requireContext())
+             adapter = searchAdapter
+        }
 
         search_icon.setOnClickListener {
             search()
         }
 
-        search.setText(query)
-        search.imeOptions = EditorInfo.IME_ACTION_SEARCH
-        search.setOnEditorActionListener { v, actionId, event ->
-            when(actionId){
-                EditorInfo.IME_ACTION_SEARCH -> {
-                    search()
+        search.apply {
+            setText(query)
+            imeOptions = EditorInfo.IME_ACTION_SEARCH
+            setOnEditorActionListener { v, actionId, event ->
+                when (actionId) {
+                    EditorInfo.IME_ACTION_SEARCH -> {
+                        search()
+                    }
                 }
+                false
             }
-            false
+            afterTextChanged {
+                query = it
+            }
         }
-        search.afterTextChanged {
-            query = it
-        }
+
+
 
         login.setOnClickListener {
             gitOauth()
@@ -97,17 +103,19 @@ class SearchFragment : Fragment() {
     }
 
     private fun subscribe(){
-        viewModel.liveDataUsers.observe(this, { list-> showUsers(list) })
-        viewModel.liveDataLoading.observe(this, { isVisible-> if (isVisible) showLoading() })
-        viewModel.liveDataError.observe(this, { showError() })
-        viewModel.liveDataIsEmptyQuery.observe(this, { showOnEmptyQuery() })
-        viewModel.liveDataIsEmptyList.observe(this, { showOnEmpty() })
+        viewModel.apply {
+            liveDataUsers.observe(this@SearchFragment, { list-> showUsers(list) })
+            liveDataLoading.observe(this@SearchFragment, { isVisible-> if (isVisible) showLoading() })
+            liveDataError.observe(this@SearchFragment, { showError() })
+            liveDataIsEmptyQuery.observe(this@SearchFragment, { showOnEmptyQuery() })
+            liveDataIsEmptyList.observe(this@SearchFragment, { showOnEmpty() })
 
-        viewModel.liveDataShowStartMessage.observe(this, { showStart() })
+            liveDataShowStartMessage.observe(this@SearchFragment, { showStart() })
 
-        viewModel.liveDataApiException.observe(this, { showOnApiException() })
-        viewModel.liveDataShowUser.observe(this, { name-> showMyFace(name) })
-        viewModel.liveDataHideUser.observe(this, { hideMyFace() })
+            liveDataApiException.observe(this@SearchFragment, { showOnApiException() })
+            liveDataShowUser.observe(this@SearchFragment, { name-> showMyFace(name) })
+            liveDataHideUser.observe(this@SearchFragment, { hideMyFace() })
+        }
     }
 
     private fun search() {

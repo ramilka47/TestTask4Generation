@@ -12,7 +12,8 @@ class ModuleBd {
 
     @Provides
     @Singleton
-    fun providesBd(context : Context) : AppDatabase = Room
-            .databaseBuilder(context, AppDatabase::class.java, "main")
-            .build()
+    fun providesBd(context : Context) : AppDatabase =
+            Room
+                    .databaseBuilder(context, AppDatabase::class.java, "main")
+                    .build()
 }

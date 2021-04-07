@@ -29,20 +29,24 @@ class RepositoryAdapter(private val inflater: LayoutInflater) : RecyclerView.Ada
     inner class RepoHolder(view : View) : RecyclerView.ViewHolder(view){
 
         fun bind(repository: Hub){
-            itemView.title.setText(repository.name)
+            with(repository) {
+                itemView.apply {
+                    title.setText(repository.name)
 
-            val descriptionString = repository.desctiption
-            if (descriptionString.isNullOrEmpty()){
-                itemView.desctiption.visibility = View.GONE
-            } else {
-                itemView.desctiption.visibility = View.VISIBLE
-                itemView.desctiption.setText(descriptionString)
+                    val descriptionString = repository.desctiption
+                    if (descriptionString.isNullOrEmpty()) {
+                        desctiption.visibility = View.GONE
+                    } else {
+                        desctiption.visibility = View.VISIBLE
+                        desctiption.setText(descriptionString)
+                    }
+                    last_commit.text = String.format(context.getString(R.string.last_commit), lastCommit.toString())
+                    fork.text = String.format(context.getString(R.string.default_branch), currentFork)
+                    count_forks.text = String.format(context.getString(R.string.forks), countOfFork.toString())
+                    language.text = String.format(context.getString(R.string.language), repository.language)
+                    stars.text = String.format(context.getString(R.string.rating), rating.toString())
+                }
             }
-            itemView.last_commit.text = String.format(itemView.context.getString(R.string.last_commit), repository.lastCommit.toString())
-            itemView.fork.text = String.format(itemView.context.getString(R.string.default_branch), repository.currentFork)
-            itemView.count_forks.text = String.format(itemView.context.getString(R.string.forks), repository.countOfFork.toString())
-            itemView.language.text = String.format(itemView.context.getString(R.string.language), repository.language)
-            itemView.stars.text = String.format(itemView.context.getString(R.string.rating), repository.rating.toString())
         }
     }
 }
