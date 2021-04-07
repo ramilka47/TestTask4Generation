@@ -48,7 +48,7 @@ class DialogExit : DialogFragment() {
 
         button2.setText(R.string.logout)
         button2.setOnClickListener {
-            viewModel.logout(requireContext())
+            viewModel.logout()
         }
 
         subscribe()

@@ -125,21 +125,19 @@ class SearchFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_CODE && resultCode == RESULT_CODE) {
-            viewModel.getMyProfile(requireContext())
+            viewModel.getMyProfile()
         }
     }
 
     override fun onResume() {
         super.onResume()
 
-        viewModel.getMyProfile(requireContext())
-
         val intent = requireActivity().intent
         if (intent?.data?.toString()?.startsWith(getString(R.string.github_app_url)) == true) {
             viewModel.getAccessTokenGitHub(
                     intent,
                     getString(R.string.github_app_id),
-                    getString(R.string.github_app_secret), requireContext())
+                    getString(R.string.github_app_secret))
         }
     }
 
@@ -169,7 +167,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun showDialog(dialogFragment: DialogFragment){
-        dialogFragment.show(fragmentManager?.beginTransaction()?:return, "")
+        dialogFragment.show(requireFragmentManager().beginTransaction(), dialogFragment.tag)
     }
 
     private fun showUsers(list : List<User>){

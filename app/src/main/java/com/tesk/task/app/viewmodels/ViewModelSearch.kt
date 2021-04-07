@@ -2,6 +2,7 @@ package com.tesk.task.app.viewmodels
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -20,8 +21,9 @@ import java.lang.Exception
 import java.net.UnknownHostException
 
 class ViewModelSearch(private val gitService: GitService,
-                                          private val bd : AppDatabase,
-                                          private val coroutineIO : CoroutineScope) : ViewModel() {
+                      private val bd : AppDatabase,
+                      private val coroutineIO : CoroutineScope,
+                      private val sharedPreferences: SharedPreferences) : ViewModel() {
 
     companion object{
         private val URL_ACCESS_TOKEN_GIT = "https://github.com/login/oauth/access_token"
@@ -55,6 +57,7 @@ class ViewModelSearch(private val gitService: GitService,
 
     init {
         mutableLiveDataShowStartMessage.postValue(true)
+        getMyProfile()
     }
 
     private var jobOnSearch : Job? = null
@@ -94,7 +97,7 @@ class ViewModelSearch(private val gitService: GitService,
         }
     }
 
-    fun getAccessTokenGitHub(intent : Intent, appId: String, clientSecret: String, context: Context){
+    fun getAccessTokenGitHub(intent : Intent, appId: String, clientSecret: String){
         val data = intent.data
         val code = data?.getQueryParameter("code")
         val state = data?.getQueryParameter("state")
@@ -111,13 +114,13 @@ class ViewModelSearch(private val gitService: GitService,
                 val accessResult = getAccessTokenGitHub(appId, clientSecret, code, redirectUri, state)
                 val token = accessResult.access_token
 
-                addAccessTokenIntoPref(token, context)
+                addAccessTokenIntoPref(token)
 
                 withContext(Dispatchers.Main){
                     intent.data = null
                 }
 
-                getMyProfile(context)
+                getMyProfile()
             }catch (e : Exception){
                 e.printStackTrace()
             }
@@ -141,11 +144,11 @@ class ViewModelSearch(private val gitService: GitService,
         startActivity(intent)
     }
 
-    fun getMyProfile(context: Context){
+    fun getMyProfile(){
         jobGetMyProfile?.cancel()
 
         jobGetMyProfile = coroutineIO.launch {
-            getMyAccount(context)
+            getMyAccount()
         }
     }
 
@@ -154,8 +157,8 @@ class ViewModelSearch(private val gitService: GitService,
         coroutineIO.cancel()
     }
 
-    private suspend fun addAccessTokenIntoPref(token : String, context: Context) =
-            with(PreferenceUtil.gitPreference(context)) {
+    private suspend fun addAccessTokenIntoPref(token : String) =
+            with(sharedPreferences) {
                 val tokenPref = this.getString(PreferenceUtil.TOKEN, null)
                 with(this.edit()) {
                     if (tokenPref.isNullOrEmpty()) {
@@ -167,10 +170,10 @@ class ViewModelSearch(private val gitService: GitService,
                 }
             }
 
-    private suspend fun getMyAccount(context: Context) {
+    private suspend fun getMyAccount() {
         val myProfile = getMyProfileFromBase()
         if (myProfile.isNullOrEmpty()) {
-            val accessToken = getAccessTokenFromPref(context)
+            val accessToken = getAccessTokenFromPref()
             if (accessToken != null) {
                 try {
                     val profile = getMyProfileFromNet("token $accessToken")
@@ -194,8 +197,8 @@ class ViewModelSearch(private val gitService: GitService,
                 }
             }
 
-    private suspend fun getAccessTokenFromPref(context: Context) : String? =
-            with(PreferenceUtil.gitPreference(context)) {
+    private suspend fun getAccessTokenFromPref() : String? =
+            with(sharedPreferences) {
                 this.getString(PreferenceUtil.TOKEN, null)
             }
 
