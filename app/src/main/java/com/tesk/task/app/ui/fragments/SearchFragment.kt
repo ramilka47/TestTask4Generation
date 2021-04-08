@@ -136,15 +136,6 @@ class SearchFragment : Fragment(), ISearchView {
         super.onResume()
 
         mMvpDelegate.onAttach()
-
-        val intent = requireActivity().intent
-        if (intent?.data?.toString()?.startsWith(getString(R.string.github_app_url)) == true) {
-            presenter.getAccessTokenGitHub(
-                intent,
-                getString(R.string.github_app_id),
-                getString(R.string.github_app_secret)
-            )
-        }
     }
 
     private fun showRepository(user: User){
@@ -232,5 +223,9 @@ class SearchFragment : Fragment(), ISearchView {
 
     override fun inject(injector: (Context) -> Unit) {
         injector(requireContext())
+    }
+
+    override fun intent(intent: (Intent, githubUrl: String, gitId: String, gitSecret: String) -> Unit) {
+        intent(requireActivity().intent, getString(R.string.github_app_url), getString(R.string.github_app_id), getString(R.string.github_app_secret))
     }
 }

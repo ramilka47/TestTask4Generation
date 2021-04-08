@@ -10,6 +10,8 @@ import moxy.viewstate.strategy.StateStrategyType
 @StateStrategyType(OneExecutionStateStrategy::class)
 interface ISearchView : MvpView {
 
+    fun intent(intent : (Intent, githubUrl:String, gitId:String, gitSecret:String)->Unit)
+
     fun inject(injector : (Context)->Unit)
 
     fun showMyAccount(name : String)

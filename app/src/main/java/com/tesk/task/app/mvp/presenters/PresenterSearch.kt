@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
+import com.tesk.task.R
 import com.tesk.task.app.Application
 import com.tesk.task.app.mvp.PreferenceUtil
 import com.tesk.task.app.mvp.views.ISearchView
@@ -58,6 +59,15 @@ class PresenterSearch : MvpPresenter<ISearchView>() {
             (it.inject {
                 (it.applicationContext as Application).appComponent.inject(this)
             })
+
+            it.intent{intent, githubUrl, gitId, gitSecret ->
+                if (intent.data?.toString()?.startsWith(githubUrl) == true) {
+                    getAccessTokenGitHub(
+                            intent,
+                            gitId,
+                            gitSecret)
+                }
+            }
         }
         getMyProfile()
     }
