@@ -1,4 +1,6 @@
-package com.tesk.task.app.viewmodels
+package com.tesk.task.app.mvp
+
+import android.content.Context
 
 object PreferenceUtil {
 

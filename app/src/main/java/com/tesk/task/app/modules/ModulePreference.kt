@@ -1,7 +1,7 @@
 package com.tesk.task.app.modules
 
 import android.content.Context
-import com.tesk.task.app.viewmodels.PreferenceUtil
+import com.tesk.task.app.mvp.PreferenceUtil
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

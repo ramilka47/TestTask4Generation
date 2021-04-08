@@ -1,29 +1,33 @@
-package com.tesk.task.app.viewmodels
+package com.tesk.task.app.mvp.presenters
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.tesk.task.providers.git.models.User
+import com.tesk.task.app.Application
+import com.tesk.task.app.mvp.PreferenceUtil
+import com.tesk.task.app.mvp.views.ISearchView
 import com.tesk.task.providers.git.GitService
+import com.tesk.task.providers.git.models.User
 import com.tesk.task.providers.git.response.UserResponse
 import com.tesk.task.providers.room.AppDatabase
 import com.tesk.task.providers.room.models.MyFaceEntity
 import com.tesk.task.providers.room.models.UserEntity
 import kotlinx.coroutines.*
+import moxy.InjectViewState
+import moxy.MvpPresenter
 import okhttp3.HttpUrl
 import org.json.JSONException
 import java.lang.Exception
 import java.net.UnknownHostException
+import javax.inject.Inject
 
-class ViewModelSearch(private val gitService: GitService,
-                      private val bd : AppDatabase,
-                      private val coroutineIO : CoroutineScope,
-                      private val sharedPreferences: SharedPreferences) : ViewModel() {
+@InjectViewState
+class PresenterSearch : MvpPresenter<ISearchView>() {
+
+    init {
+        Log.d("presenter", "has initializated")
+    }
 
     companion object{
         private val URL_ACCESS_TOKEN_GIT = "https://github.com/login/oauth/access_token"
@@ -35,67 +39,74 @@ class ViewModelSearch(private val gitService: GitService,
         private val USER_EMAIL = "user:email"
     }
 
-    private val mutableLiveDataOfListUsers = MutableLiveData<List<User>>()
-    private val mutableLiveDataOfLoading = MutableLiveData<Boolean>()
-    private val mutableLiveDataOfError = MutableLiveData<Exception>()
-    private val mutableLiveDataOfListUsersIsEmpty = MutableLiveData<Boolean>()
-    private val mutableLiveDataIsEmptyQuery = MutableLiveData<Boolean>()
-    private val mutableLiveDataApiException = MutableLiveData<Boolean>()
-    private val mutableLiveDataShowStartMessage = MutableLiveData<Boolean>()
-    private val mutableLiveDataShowUser = MutableLiveData<String>()
-    private val mutableLiveDataHideUser = MutableLiveData<Boolean>()
-
-    val liveDataUsers : LiveData<List<User>> = mutableLiveDataOfListUsers
-    val liveDataLoading : LiveData<Boolean> = mutableLiveDataOfLoading
-    val liveDataError : LiveData<Exception> = mutableLiveDataOfError
-    val liveDataIsEmptyList : LiveData<Boolean> = mutableLiveDataOfListUsersIsEmpty
-    val liveDataIsEmptyQuery : LiveData<Boolean> = mutableLiveDataIsEmptyQuery
-    val liveDataApiException : LiveData<Boolean> = mutableLiveDataApiException
-    val liveDataShowStartMessage : LiveData<Boolean> = mutableLiveDataShowStartMessage
-    val liveDataShowUser : LiveData<String> = mutableLiveDataShowUser
-    val liveDataHideUser : LiveData<Boolean> = mutableLiveDataHideUser
-
-    init {
-        mutableLiveDataShowStartMessage.postValue(true)
-        getMyProfile()
-    }
+    @Inject
+    lateinit var bd : AppDatabase
+    @Inject
+    lateinit var gitService: GitService
+    @Inject
+    lateinit var coroutineIO : CoroutineScope
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
 
     private var jobOnSearch : Job? = null
     private var jobGetAccessToken : Job? = null
     private var jobGetMyProfile : Job? = null
 
+    override fun attachView(view: ISearchView?) {
+        super.attachView(view)
+        view?.let {
+            (it.inject {
+                (it.applicationContext as Application).appComponent.inject(this)
+            })
+        }
+        getMyProfile()
+    }
+
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+        viewState.showStart()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineIO.cancel()
+    }
+
     fun search(query :String?){
         if (query.isNullOrEmpty()){
-            mutableLiveDataIsEmptyQuery.postValue(true)
+            viewState.showOnEmptyQuery()
             return
         }
         jobOnSearch?.cancel()
 
         jobOnSearch = coroutineIO.launch {
             try {
-                mutableLiveDataOfLoading.postValue(true)
+                intoMainThread{viewState.showLoading()}
                 val users = getUsersFromNet(query)
 
                 if (users.isNullOrEmpty()) {
-                    mutableLiveDataOfListUsersIsEmpty.postValue(true)
+                    intoMainThread { viewState.showEmptyUsers() }
                     return@launch
                 } else {
                     addIntoBase(users, query)
-                    mutableLiveDataOfListUsers.postValue(users)
+                    intoMainThread { viewState.showUsers(users) }
                 }
             } catch (e : UnknownHostException) {
                 val users = getUsersFromBase(query)
 
                 if (users.isNullOrEmpty()){
-                    mutableLiveDataOfError.postValue(e)
+                    intoMainThread { viewState.showErrorInternetAccess() }
                 } else {
-                    mutableLiveDataOfListUsers.postValue(users)
+                    intoMainThread { viewState.showUsers(users) }
                 }
             } catch (e : JSONException){
-                mutableLiveDataApiException.postValue(true)
+                intoMainThread {  viewState.showErrorApiRequestRate() }
             }
         }
     }
+
+    private suspend fun intoMainThread(customer : ()->Unit) =
+        withContext(Dispatchers.Main) { customer() }
 
     fun getAccessTokenGitHub(intent : Intent, appId: String, clientSecret: String){
         val data = intent.data
@@ -152,23 +163,18 @@ class ViewModelSearch(private val gitService: GitService,
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        coroutineIO.cancel()
-    }
-
     private suspend fun addAccessTokenIntoPref(token : String) =
-            with(sharedPreferences) {
-                val tokenPref = this.getString(PreferenceUtil.TOKEN, null)
-                with(this.edit()) {
-                    if (tokenPref.isNullOrEmpty()) {
-                        this.remove(PreferenceUtil.TOKEN)
-                        this.apply()
-                    }
-                    this.putString(PreferenceUtil.TOKEN, token)
+        with(sharedPreferences) {
+            val tokenPref = this.getString(PreferenceUtil.TOKEN, null)
+            with(this.edit()) {
+                if (tokenPref.isNullOrEmpty()) {
+                    this.remove(PreferenceUtil.TOKEN)
                     this.apply()
                 }
+                this.putString(PreferenceUtil.TOKEN, token)
+                this.apply()
             }
+        }
 
     private suspend fun getMyAccount() {
         val profile = getMyProfileFromBase()
@@ -178,66 +184,66 @@ class ViewModelSearch(private val gitService: GitService,
                 try {
                     val profile = getMyProfileFromNet("token $accessToken")
                     addMyProfileIntoBase(profile.login)
-                    mutableLiveDataShowUser.postValue(profile.login)
+                    intoMainThread { viewState.showMyAccount(profile.login) }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    mutableLiveDataHideUser.postValue(true)
+                    intoMainThread { viewState.hideMyAccount() }
                 }
             } else {
-                mutableLiveDataHideUser.postValue(true)
+                intoMainThread { viewState.hideMyAccount() }
             }
         } else {
-            mutableLiveDataShowUser.postValue(profile)
+            intoMainThread { viewState.showMyAccount(profile)  }
         }
     }
 
     private suspend fun addMyProfileIntoBase(name : String) =
-            with(bd.myFaceDao()) {
-                this.getById(0)?.let {
-                    update(MyFaceEntity(it.id, name))
-                }
+        with(bd.myFaceDao()) {
+            this.getById(0)?.let {
+                update(MyFaceEntity(it.id, name))
             }
+        }
 
     private suspend fun getAccessTokenFromPref() : String? =
-            with(sharedPreferences) {
-                this.getString(PreferenceUtil.TOKEN, null)
-            }
+        with(sharedPreferences) {
+            this.getString(PreferenceUtil.TOKEN, null)
+        }
 
     private suspend fun getMyProfileFromBase() : String? =
-            with(bd.myFaceDao()) {
-                this.getById(0)?.name
-            }
+        with(bd.myFaceDao()) {
+            this.getById(0)?.name
+        }
 
     private suspend fun getUsersFromNet(query: String) =
-            gitService
+        gitService
             .getUsers(query)
             .items.map {
-                        User(it).apply {
-                            followers = try {
-                                getFollower(it)
-                            } catch (e: JSONException) {
-                                0
-                            }
-                        }
+                User(it).apply {
+                    followers = try {
+                        getFollower(it)
+                    } catch (e: JSONException) {
+                        0
                     }
+                }
+            }
 
     private suspend fun getUsersFromBase(query: String) =
-            with(bd.usersDao()) {
-                this.getByQuery(query).map {
-                    User(it)
-                }
+        with(bd.usersDao()) {
+            this.getByQuery(query).map {
+                User(it)
             }
+        }
 
     private suspend fun addIntoBase(list : List<User>, query: String) =
-            with(bd.usersDao()) {
-                list.forEach {
-                    val userEntity = UserEntity(it.id, it.name, it.avatar, it.followers, query)
-                    if (this.getById(it.id) != null) {
-                        this.update(userEntity)
-                    } else
-                        this.insert(userEntity)
-                }
+        with(bd.usersDao()) {
+            list.forEach {
+                val userEntity = UserEntity(it.id, it.name, it.avatar, it.followers, query)
+                if (this.getById(it.id) != null) {
+                    this.update(userEntity)
+                } else
+                    this.insert(userEntity)
             }
+        }
 
     private suspend fun getMyProfileFromNet(accessToken : String) = gitService.myProfile(accessToken)
 
@@ -245,18 +251,17 @@ class ViewModelSearch(private val gitService: GitService,
                                              clientSecret: String,
                                              code : String,
                                              redirectUri : String?, state : String?) =
-            gitService.accessToken(
-                    URL_ACCESS_TOKEN_GIT,
-                    appId,
-                    clientSecret,
-                    code,
-                    redirectUri,
-                    state
-            )
+        gitService.accessToken(
+            URL_ACCESS_TOKEN_GIT,
+            appId,
+            clientSecret,
+            code,
+            redirectUri,
+            state
+        )
 
     private suspend fun getFollower(userResponse: UserResponse) : Int =
-            gitService
-                    .getFollowers(userResponse.login)
-                    .size
-
+        gitService
+            .getFollowers(userResponse.login)
+            .size
 }

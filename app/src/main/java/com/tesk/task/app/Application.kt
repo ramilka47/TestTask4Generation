@@ -15,10 +15,6 @@ class Application : Application() {
         appComponent = DaggerApplicationComponent
                 .builder()
                 .moduleApp(ModuleApp(this))
-                .moduleCoroutineScope(ModuleCoroutineScope())
-                .moduleRetrofit(ModuleRetrofit())
-                .moduleBd(ModuleBd())
-                .moduleViewModelFactory(ModuleViewModelFactory())
                 .build()
     }
 

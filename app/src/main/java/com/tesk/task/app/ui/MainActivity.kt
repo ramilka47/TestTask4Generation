@@ -15,7 +15,6 @@ class MainActivity : AppCompatActivity(), IShowUserHub {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        (application as Application).appComponent.inject(this)
         supportActionBar?.hide()
 
         switch()

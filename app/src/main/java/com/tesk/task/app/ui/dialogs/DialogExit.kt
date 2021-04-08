@@ -2,6 +2,7 @@ package com.tesk.task.app.ui.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,25 +11,40 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.tesk.task.R
-import com.tesk.task.app.Application
+import com.tesk.task.app.mvp.presenters.PresenterExit
+import com.tesk.task.app.mvp.views.IExitView
 import com.tesk.task.app.ui.fragments.SearchFragment
-import com.tesk.task.app.viewmodels.FactoryViewModel
-import com.tesk.task.app.viewmodels.ViewModelLogout
 import kotlinx.android.synthetic.main.dialog_exit.*
-import javax.inject.Inject
+import moxy.MvpDelegate
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
-class DialogExit : DialogFragment() {
+class DialogExit : DialogFragment(), IExitView {
 
-    lateinit var viewModelFactory : FactoryViewModel
-        @Inject set
+    @InjectPresenter
+    lateinit var presenter : PresenterExit
 
-    private val viewModel by lazy {
-        viewModelFactory.create(ViewModelLogout::class.java)
-    }
+    private var mMvpDelegate = MvpDelegate(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (requireActivity().application as Application).appComponent.inject(this)
+        retainInstance = true
+        mMvpDelegate.onCreate(savedInstanceState)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        mMvpDelegate.onDetach()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mMvpDelegate.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mMvpDelegate.onAttach()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -48,35 +64,18 @@ class DialogExit : DialogFragment() {
 
         button2.setText(R.string.logout)
         button2.setOnClickListener {
-            viewModel.logout()
+            presenter.logout()
         }
-
-        subscribe()
     }
 
-    private fun onSuccess(){
-        targetFragment?.onActivityResult(targetRequestCode, SearchFragment.RESULT_CODE, null)
-        dismiss()
-    }
-
-    private fun showLoading(){
-    }
-
-    private fun showError(){
+    override fun onExitError() {
         targetFragment?.onActivityResult(targetRequestCode, SearchFragment.RESULT_CODE_ERROR, null)
         dismiss()
     }
 
-    private fun subscribe(){
-        viewModel.liveDataSuccess.observe(this, {
-            onSuccess()
-        })
-        viewModel.liveDataLoading.observe(this, {
-            showLoading()
-        })
-        viewModel.liveDataError.observe(this, {
-            showError()
-        })
+    override fun onExitSuccess() {
+        targetFragment?.onActivityResult(targetRequestCode, SearchFragment.RESULT_CODE, null)
+        dismiss()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -88,4 +87,12 @@ class DialogExit : DialogFragment() {
 
         return builder
     }
+
+    override fun inject(injector: (Context) -> Unit) {
+        injector(requireContext())
+    }
+
+    @ProvidePresenter
+    fun provides() = PresenterExit()
+
 }

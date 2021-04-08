@@ -1,5 +1,6 @@
 package com.tesk.task.app.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,34 +9,48 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tesk.task.R
-import com.tesk.task.app.Application
 import com.tesk.task.app.adapters.RepositoryAdapter
-import com.tesk.task.app.viewmodels.FactoryViewModel
-import com.tesk.task.app.viewmodels.ViewModelRepository
+import com.tesk.task.app.mvp.presenters.PresenterHub
+import com.tesk.task.app.mvp.views.IHubView
 import com.tesk.task.providers.git.models.Hub
 import com.tesk.task.providers.git.models.User
 import kotlinx.android.synthetic.main.item_inner_search_t_result.*
-import kotlinx.android.synthetic.main.item_user.*
 import kotlinx.android.synthetic.main.repository_fragment.*
-import javax.inject.Inject
+import moxy.MvpDelegate
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
-class HubFragment : Fragment() {
+class HubFragment : Fragment(), IHubView {
 
-    lateinit var viewModuleFactory: FactoryViewModel
-        @Inject set
-
-    private val viewModel by lazy {
-        viewModuleFactory.create(ViewModelRepository::class.java)
-    }
+    @InjectPresenter
+    lateinit var presenter : PresenterHub
 
     lateinit var user : User
 
     private lateinit var repositoryAdapter : RepositoryAdapter
 
+    private var mMvpDelegate = MvpDelegate(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (requireActivity().application as Application).appComponent.inject(this)
         retainInstance = true
+        mMvpDelegate.onCreate(savedInstanceState)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        mMvpDelegate.onDetach()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mMvpDelegate.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mMvpDelegate.onAttach()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -53,10 +68,6 @@ class HubFragment : Fragment() {
         }
 
         title_user_name.text = String.format(getString(R.string.user_s), user.name)
-
-        subscribe()
-
-        viewModel.getRepositories(user)
     }
 
     private fun showInner(resource : Int){
@@ -66,17 +77,25 @@ class HubFragment : Fragment() {
         text.setText(resource)
     }
 
-    private fun showError(){
-        showInner(R.string.internet_access_worn)
-    }
-
-    private fun showLoading(){
+    override fun showLoading(){
         loading.visibility = View.VISIBLE
         recycler_view.visibility = View.GONE
         inner_frame.visibility = View.GONE
     }
 
-    private fun showHubs(list : List<Hub>){
+    override fun showErrorInternetAccess() {
+        showInner(R.string.internet_access_worn)
+    }
+
+    override fun showErrorApiRequestRate() {
+        Toast.makeText(requireContext(), R.string.count_of_requests_get_a_higher_rate_limit, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showEmptyHubs() {
+        showInner(R.string.user_have_not_repositories)
+    }
+
+    override fun showHubs(list : List<Hub>) {
         loading.visibility = View.GONE
         recycler_view.visibility = View.VISIBLE
         inner_frame.visibility = View.GONE
@@ -85,21 +104,14 @@ class HubFragment : Fragment() {
         recycler_view.adapter?.notifyDataSetChanged()
     }
 
-    private fun showOnEmpty(){
-        showInner(R.string.user_have_not_repositories)
+    override fun getUser(getUser: (User) -> Unit) {
+        getUser(user)
     }
 
-    private fun showOnApiException(){
-        Toast.makeText(requireContext(), R.string.count_of_requests_get_a_higher_rate_limit, Toast.LENGTH_SHORT).show()
+    override fun inject(injector: (Context) -> Unit) {
+        injector(requireContext())
     }
 
-    private fun subscribe(){
-        viewModel.apply {
-            liveDataRepositories.observe(this@HubFragment, { list-> showHubs(list) })
-            liveDataLoading.observe(this@HubFragment, { showLoading() })
-            liveDataError.observe(this@HubFragment, { showError() })
-            liveDataOnEmptyList.observe(this@HubFragment, { showOnEmpty() })
-            liveDataApiException.observe(this@HubFragment, { showOnApiException() })
-        }
-    }
+    @ProvidePresenter
+    fun provides() = PresenterHub()
 }

@@ -1,6 +1,9 @@
 package com.tesk.task.app.components
 
-import com.tesk.task.app.modules.ModuleViewModelFactory
+import com.tesk.task.app.modules.*
+import com.tesk.task.app.mvp.presenters.PresenterExit
+import com.tesk.task.app.mvp.presenters.PresenterHub
+import com.tesk.task.app.mvp.presenters.PresenterSearch
 import com.tesk.task.app.ui.MainActivity
 import com.tesk.task.app.ui.dialogs.DialogExit
 import com.tesk.task.app.ui.fragments.HubFragment
@@ -9,14 +12,13 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = arrayOf(ModuleViewModelFactory::class))
+@Component(modules = arrayOf(ModuleBd::class, ModuleCoroutineScope::class, ModuleGitService::class, ModulePreference::class))
 interface ApplicationComponent {
 
-    fun inject(mainActivity: MainActivity)
+    fun inject(presenterSearch: PresenterSearch)
 
-    fun inject(repositoryFragment: HubFragment)
+    fun inject(presenterHub: PresenterHub)
 
-    fun inject(searchFragment: SearchFragment)
+    fun inject(presenterExit: PresenterExit)
 
-    fun inject(dialogExit: DialogExit)
 }
