@@ -79,5 +79,7 @@ dependencies {
 
     def moxyVersion = '2.2.1'
     implementation "com.github.moxy-community:moxy:$moxyVersion"
+    implementation "com.github.moxy-community:moxy-androidx:$moxyVersion"
+    implementation "com.github.moxy-community:moxy-ktx:$moxyVersion"
     kapt "com.github.moxy-community:moxy-compiler:$moxyVersion"
 }

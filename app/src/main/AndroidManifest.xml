@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.tesk.task">
+    package="com.test.task">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".app.Application"
+        android:name="com.test.task.app.Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -14,8 +14,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.TestTask4Generation">
         <activity
-            android:name="com.tesk.task.app.ui.MainActivity"
-            android:screenOrientation="portrait"
+            android:name="com.test.task.app.ui.MainActivity"
             android:windowSoftInputMode="stateHidden|adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
