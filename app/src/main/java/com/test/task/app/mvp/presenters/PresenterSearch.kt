@@ -56,60 +56,57 @@ class PresenterSearch @Inject constructor(private val bd : AppDatabase,
         }
         jobOnSearch?.cancel()
 
-        jobOnSearch =  presenterScope.launch(Dispatchers.IO) {
+        jobOnSearch =  presenterScope.launch {
             try {
-                intoMainThread{viewState.showLoading()}
+                viewState.showLoading()
                 val users = getUsersFromNet(query)
 
                 if (users.isNullOrEmpty()) {
-                    intoMainThread { viewState.showEmptyUsers() }
+                    viewState.showEmptyUsers()
                     return@launch
                 } else {
                     addIntoBase(users, query)
-                    intoMainThread { viewState.showUsers(users) }
+                    viewState.showUsers(users)
                 }
             } catch (e : UnknownHostException) {
                 val users = getUsersFromBase(query)
 
                 if (users.isNullOrEmpty()){
-                    intoMainThread { viewState.showErrorInternetAccess() }
+                    viewState.showErrorInternetAccess()
                 } else {
-                    intoMainThread { viewState.showUsers(users) }
+                    viewState.showUsers(users)
                 }
             } catch (e : JSONException){
-                intoMainThread {  viewState.showErrorApiRequestRate() }
+                viewState.showErrorApiRequestRate()
             }
         }
     }
 
-    private fun getAccessTokenGitHub(intent : Intent, appId: String, clientSecret: String){
+    private fun getAccessTokenGitHub(intent : Intent, appId: String, clientSecret: String) {
         val data = intent.data
         val code = data?.getQueryParameter("code")
         val state = data?.getQueryParameter("state")
         val redirectUri = data?.getQueryParameter("redirect_uri")
 
         // че-то случилось
-        if (code.isNullOrEmpty()){
+        if (code.isNullOrEmpty()) {
             return
         }
 
         jobGetAccessToken?.cancel()
-        jobGetAccessToken = presenterScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.IO){
-
-            }
+        jobGetAccessToken = presenterScope.launch {
             try {
                 val accessResult = getAccessTokenGitHub(appId, clientSecret, code, redirectUri, state)
                 val token = accessResult.access_token
 
                 addAccessTokenIntoPref(token)
 
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     intent.data = null
                 }
 
                 getMyProfile()
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
@@ -135,7 +132,7 @@ class PresenterSearch @Inject constructor(private val bd : AppDatabase,
     fun getMyProfile(){
         jobGetMyProfile?.cancel()
 
-        jobGetMyProfile = presenterScope.launch(Dispatchers.IO) {
+        jobGetMyProfile = presenterScope.launch {
             getMyAccount()
         }
     }
@@ -154,23 +151,25 @@ class PresenterSearch @Inject constructor(private val bd : AppDatabase,
         }
 
     private suspend fun getMyAccount() {
-        val profile = getMyProfileFromBase()
-        if (profile.isNullOrEmpty()) {
-            val accessToken = getAccessTokenFromPref()
-            if (accessToken != null) {
-                try {
-                    val profile = getMyProfileFromNet("token $accessToken")
-                    addMyProfileIntoBase(profile.login)
-                    intoMainThread { viewState.showMyAccount(profile.login) }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    intoMainThread { viewState.hideMyAccount() }
+        withContext(Dispatchers.IO){
+            val profile = getMyProfileFromBase()
+            if (profile.isNullOrEmpty()) {
+                val accessToken = getAccessTokenFromPref()
+                if (accessToken != null) {
+                    try {
+                        val profile = getMyProfileFromNet("token $accessToken")
+                        addMyProfileIntoBase(profile.login)
+                        withContext(Dispatchers.Main){viewState.showMyAccount(profile.login)}
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        withContext(Dispatchers.Main){viewState.hideMyAccount()}
+                    }
+                } else {
+                    withContext(Dispatchers.Main){viewState.hideMyAccount()}
                 }
             } else {
-                intoMainThread { viewState.hideMyAccount() }
+                withContext(Dispatchers.Main){viewState.showMyAccount(profile)}
             }
-        } else {
-            intoMainThread { viewState.showMyAccount(profile)  }
         }
     }
 
@@ -242,6 +241,4 @@ class PresenterSearch @Inject constructor(private val bd : AppDatabase,
             .getFollowers(userResponse.login)
             .size
 
-    private suspend fun intoMainThread(customer : ()->Unit) =
-        withContext(Dispatchers.Main) { customer() }
 }

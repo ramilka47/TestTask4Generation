@@ -1,48 +1,37 @@
 package com.test.task.app.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import com.bumptech.glide.manager.SupportRequestManagerFragment
+import com.bluelinelabs.conductor.Conductor
+import com.bluelinelabs.conductor.Router
+import com.bluelinelabs.conductor.RouterTransaction
 import com.test.task.R
-import com.test.task.app.ui.fragments.SearchFragment
+import com.test.task.app.ui.controllers.HubController
+import com.test.task.app.ui.controllers.UserController
+import com.test.task.providers.git.models.User
+import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 
 class MainActivity : MvpAppCompatActivity() {
+
+    private lateinit var router : Router
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
 
-        switch()
+        router = Conductor.attachRouter(this, container, savedInstanceState)
+        showUserController()
     }
 
-    private fun switch(){
-        val fragments = supportFragmentManager.fragments
-        if (fragments.size > 0){
-            if (fragments.last() is SupportRequestManagerFragment)
-                fragments.remove(fragments.last())
-
-            execute(fragments.last())
-        } else {
-            showSearch()
-        }
+    private fun showUserController(){
+        if (!router.hasRootController())
+            router.setRoot(RouterTransaction.with(UserController()))
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 1){
-            supportFragmentManager.popBackStack()
-        } else {
-            super.onBackPressed()
+        if (!router.handleBack()) {
+            super.onBackPressed();
         }
-    }
-
-    private fun showSearch(){
-        val fragment = SearchFragment()
-        supportFragmentManager.beginTransaction().replace(R.id.container, fragment).commit()
-    }
-
-    private fun execute(fragment : Fragment){
-        supportFragmentManager.beginTransaction().replace(R.id.container, fragment).addToBackStack(fragment.javaClass.name).commit()
     }
 }

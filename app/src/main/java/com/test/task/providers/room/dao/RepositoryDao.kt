@@ -7,23 +7,23 @@ import com.test.task.providers.room.models.RepositoryEntity
 interface RepositoryDao {
 
     @Delete
-    fun delete(repositoryEntity: RepositoryEntity)
+    suspend fun delete(repositoryEntity: RepositoryEntity)
 
     @Update
-    fun update(repositoryEntity: RepositoryEntity)
+    suspend fun update(repositoryEntity: RepositoryEntity)
 
     @Insert
-    fun insert(repositoryEntity: RepositoryEntity)
+    suspend fun insert(repositoryEntity: RepositoryEntity)
 
     @Query("Select * From RepositoryEntity Where id = :id")
-    fun getById(id : String) : RepositoryEntity
+    suspend fun getById(id : String) : RepositoryEntity
 
     @Query("Select * From RepositoryEntity")
-    fun getAll() : List<RepositoryEntity>
+    suspend fun getAll() : List<RepositoryEntity>
 
     @Query("Select * From RepositoryEntity Where userName = :userName")
-    fun getAllByUserName(userName : String) : List<RepositoryEntity>
+    suspend fun getAllByUserName(userName : String) : List<RepositoryEntity>
 
     @Query("Delete From RepositoryEntity Where userName = :userName")
-    fun deleteAllByUserName(userName : String)
+    suspend fun deleteAllByUserName(userName : String)
 }

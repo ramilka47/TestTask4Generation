@@ -7,25 +7,25 @@ import com.test.task.providers.room.models.UserEntity
 interface UserDao {
 
     @Delete
-    fun delete(userEntity: UserEntity)
+    suspend fun delete(userEntity: UserEntity)
 
     @Update
-    fun update(userEntity: UserEntity)
+    suspend fun update(userEntity: UserEntity)
 
     @Insert
-    fun insert(userEntity: UserEntity)
+    suspend fun insert(userEntity: UserEntity)
 
     @Query("Select * From UserEntity Where id = :id")
-    fun getById(id : String) : UserEntity
+    suspend fun getById(id : String) : UserEntity
 
     @Query("Select * From UserEntity")
-    fun getAll() : List<UserEntity>
+    suspend fun getAll() : List<UserEntity>
 
     // типа по запросу
     @Query("Select * From UserEntity Where `query` = :query")
-    fun getByQuery(query: String) : List<UserEntity>
+    suspend fun getByQuery(query: String) : List<UserEntity>
 
     // типа по запросу
     @Query("Delete From UserEntity Where `query` = :query")
-    fun deleteByQuery(query: String)
+    suspend fun deleteByQuery(query: String)
 }

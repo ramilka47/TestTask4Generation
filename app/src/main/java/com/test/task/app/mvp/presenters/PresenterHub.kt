@@ -28,27 +28,27 @@ class PresenterHub @Inject constructor(private val bd : AppDatabase,
     }
 
     private fun getRepositories(user: User) {
-        presenterScope.launch(Dispatchers.IO) {
+        presenterScope.launch {
             try {
-                intoMainThread { viewState.showLoading() }
+                viewState.showLoading()
                 val repositories = getRepositoriesFromNet(user)
                 if (repositories.isNullOrEmpty()) {
-                    intoMainThread { viewState.showEmptyHubs() }
+                    viewState.showEmptyHubs()
                     return@launch
                 } else {
                     addIntoBase(repositories, user)
-                    intoMainThread { viewState.showHubs(repositories) }
+                    viewState.showHubs(repositories)
                 }
             } catch (e: UnknownHostException) {
                 val repositories = getRepositoriesFromBase(user)
 
                 if (repositories.isNullOrEmpty()) {
-                    intoMainThread { viewState.showErrorInternetAccess() }
+                    viewState.showErrorInternetAccess()
                 } else {
-                    intoMainThread { viewState.showHubs(repositories) }
+                    viewState.showHubs(repositories)
                 }
             } catch (e: JSONException) {
-                intoMainThread { viewState.showErrorApiRequestRate() }
+                viewState.showErrorApiRequestRate()
             }
         }
     }
@@ -88,6 +88,4 @@ class PresenterHub @Inject constructor(private val bd : AppDatabase,
         }
     }
 
-    private suspend fun intoMainThread(customer : ()->Unit) =
-        withContext(Dispatchers.Main) { customer() }
 }

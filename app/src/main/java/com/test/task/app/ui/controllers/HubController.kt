@@ -1,11 +1,14 @@
-package com.test.task.app.ui.fragments
+package com.test.task.app.ui.controllers
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.test.task.R
 import com.test.task.app.Application
 import com.test.task.app.adapters.RepositoryAdapter
@@ -13,14 +16,11 @@ import com.test.task.app.mvp.presenters.PresenterHub
 import com.test.task.app.mvp.views.IHubView
 import com.test.task.providers.git.models.Hub
 import com.test.task.providers.git.models.User
-import kotlinx.android.synthetic.main.item_inner_search_t_result.*
-import kotlinx.android.synthetic.main.repository_fragment.*
-import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import javax.inject.Inject
 
-class HubFragment : MvpAppCompatFragment(), IHubView {
+class HubController : MvpController(), IHubView {
 
     @Inject
     @InjectPresenter
@@ -29,38 +29,53 @@ class HubFragment : MvpAppCompatFragment(), IHubView {
     lateinit var user : User
 
     private lateinit var repositoryAdapter : RepositoryAdapter
+    private lateinit var recycler_view : RecyclerView
+    private lateinit var loading : ProgressBar
+    private lateinit var inner_frame : View
+    private lateinit var text_inner : TextView
+    private lateinit var title : TextView
 
     @ProvidePresenter
     fun provide() = presenter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        (requireContext().applicationContext as Application).appComponent.inject(this)
-        super.onCreate(savedInstanceState)
-        retainInstance = true
+    override fun onAttach(view: View) {
+        (applicationContext as Application).appComponent.inject(this)
+        super.onAttach(view)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.repository_fragment, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup,
+        savedViewState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.repository_fragment, container, false)
+        attachViews(view)
+        return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private fun attachViews(view : View){
+        with(view){
+            title = findViewById(R.id.title_user_name)
+            recycler_view = findViewById(R.id.recycler_view)
+            loading = findViewById(R.id.loading)
+            inner_frame = findViewById(R.id.inner_frame)
+            text_inner = findViewById(R.id.text_inner)
 
-        repositoryAdapter = RepositoryAdapter(LayoutInflater.from(requireContext()))
-        recycler_view.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = repositoryAdapter
+            repositoryAdapter = RepositoryAdapter(LayoutInflater.from(context))
+            recycler_view.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                adapter = repositoryAdapter
+            }
+            title.text = user.name
         }
-
-        title_user_name.text = String.format(getString(R.string.user_s), user.name)
     }
 
     private fun showInner(resource : Int){
         loading.visibility = View.GONE
         recycler_view.visibility = View.GONE
         inner_frame.visibility = View.VISIBLE
-        text.setText(resource)
+        text_inner.setText(resource)
     }
 
     override fun showLoading(){
@@ -74,7 +89,7 @@ class HubFragment : MvpAppCompatFragment(), IHubView {
     }
 
     override fun showErrorApiRequestRate() {
-        Toast.makeText(requireContext(), R.string.count_of_requests_get_a_higher_rate_limit, Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, R.string.count_of_requests_get_a_higher_rate_limit, Toast.LENGTH_SHORT).show()
     }
 
     override fun showEmptyHubs() {
@@ -93,4 +108,5 @@ class HubFragment : MvpAppCompatFragment(), IHubView {
     override fun getUser(getUser: (User) -> Unit) {
         getUser(user)
     }
+
 }
