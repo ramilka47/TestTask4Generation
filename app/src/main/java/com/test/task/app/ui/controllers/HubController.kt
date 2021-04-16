@@ -18,11 +18,19 @@ import com.test.task.providers.git.models.Hub
 import com.test.task.providers.git.models.User
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import javax.inject.Inject
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.generic.instance
+import org.kodein.di.newInstance
 
-class HubController : MvpController(), IHubView {
+class HubController : MvpController(), IHubView, KodeinAware {
 
-    @Inject
+    override val kodein: Kodein by lazy {
+        (applicationContext as Application).kodein
+    }
+
+    private val newInstance by newInstance{ PresenterHub(instance(), instance()) }
+
     @InjectPresenter
     lateinit var presenter : PresenterHub
 
@@ -36,12 +44,7 @@ class HubController : MvpController(), IHubView {
     private lateinit var title : TextView
 
     @ProvidePresenter
-    fun provide() = presenter
-
-    override fun onAttach(view: View) {
-        (applicationContext as Application).appComponent.inject(this)
-        super.onAttach(view)
-    }
+    fun provide() = newInstance
 
     override fun onCreateView(
         inflater: LayoutInflater,

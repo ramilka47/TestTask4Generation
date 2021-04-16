@@ -67,11 +67,11 @@ dependencies {
     def coroutineVersion = '1.4.2'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutineVersion"
 
-    def daggerVersion = '2.20'
-    implementation "com.google.dagger:dagger-android:$daggerVersion"
-    implementation "com.google.dagger:dagger-android-support:$daggerVersion"  //  if you use the support libraries
-    kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+    def kodeinVersion = '6.1.0' //
+    def kodeinJVMVersion = '6.1.0'
+    implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinJVMVersion"
+    implementation "org.kodein.di:kodein-di-framework-android-core:$kodeinVersion"
+    implementation "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
 
     def retrofitVersion = '2.9.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"

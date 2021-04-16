@@ -20,12 +20,9 @@ import okhttp3.HttpUrl
 import org.json.JSONException
 import java.lang.Exception
 import java.net.UnknownHostException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @InjectViewState
-@Singleton
-class PresenterSearch @Inject constructor(private val bd : AppDatabase,
+class PresenterSearch constructor(private val bd : AppDatabase,
                                           private val gitService: GitService,
                                           private val sharedPreferences: SharedPreferences) : MvpPresenter<ISearchView>() {
 
@@ -43,7 +40,6 @@ class PresenterSearch @Inject constructor(private val bd : AppDatabase,
                     gitSecret
                 )
             }
-
         }
         getMyProfile()
         viewState.showStart()

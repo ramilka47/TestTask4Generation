@@ -9,31 +9,33 @@ import com.test.task.R
 import com.test.task.app.Application
 import com.test.task.app.mvp.presenters.PresenterExit
 import com.test.task.app.mvp.views.IExitView
-import com.test.task.app.ui.dialogs.DialogExitUtil
 import com.test.task.app.ui.dialogs.helpfull.DialogController
 import kotlinx.android.synthetic.main.dialog_exit.*
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import javax.inject.Inject
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.generic.instance
+import org.kodein.di.newInstance
 
-class DialogExitController : DialogController(), IExitView {
+class DialogExitController : DialogController(), IExitView, KodeinAware {
 
-    @Inject
+    override val kodein: Kodein by lazy{
+        (applicationContext as Application).kodein
+    }
+
+    private val newInstance by newInstance { PresenterExit(instance()) }
+
     @InjectPresenter
     lateinit var presenter : PresenterExit
 
     @ProvidePresenter
-    fun provides() = presenter
+    fun provides() = newInstance
 
     private lateinit var text_one : TextView
     private lateinit var text_two : TextView
     private lateinit var button1 : Button
     private lateinit var button2 : Button
-
-    override fun onAttach(view: View) {
-        (activity?.applicationContext as Application).appComponent.inject(this)
-        super.onAttach(view)
-    }
 
     override fun onCreateContentView(inflater: LayoutInflater?, container: ViewGroup?): View? {
         val view = inflater?.inflate(R.layout.dialog_exit,container, false)

@@ -23,9 +23,12 @@ import com.test.task.app.ui.dialogs.helpfull.SimpleDialogChangeHandler
 import com.test.task.providers.git.models.User
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import javax.inject.Inject
+import org.kodein.di.Kodein
+import org.kodein.di.KodeinAware
+import org.kodein.di.generic.instance
+import org.kodein.di.newInstance
 
-class UserController : MvpController(), ISearchView {
+class UserController : MvpController(), ISearchView, KodeinAware {
 
     companion object{
         private const val QUERY = "UserController.query"
@@ -34,14 +37,19 @@ class UserController : MvpController(), ISearchView {
         private const val HUB = "HubController"
     }
 
-    @Inject
+    override val kodein: Kodein by lazy{
+        (applicationContext as Application).kodein
+    }
+
+    private val newInstance by newInstance { PresenterSearch(instance(), instance(), instance()) }
+
     @InjectPresenter
     lateinit var presenter : PresenterSearch
 
     private lateinit var searchAdapter: SearchAdapter
 
     @ProvidePresenter
-    fun provide(): PresenterSearch = presenter
+    fun provide(): PresenterSearch = newInstance
 
     private lateinit var recycler_view : RecyclerView
     private lateinit var search_icon : ImageView
@@ -52,11 +60,6 @@ class UserController : MvpController(), ISearchView {
     private lateinit var text_inner : TextView
     private lateinit var box_of_my_account : View
     private lateinit var title_user_name : TextView
-
-    override fun onAttach(view: View) {
-        (applicationContext as Application).appComponent.inject(this)
-        super.onAttach(view)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

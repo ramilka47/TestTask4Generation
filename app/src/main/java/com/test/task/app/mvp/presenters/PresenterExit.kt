@@ -5,12 +5,9 @@ import com.test.task.app.mvp.PreferenceUtil
 import com.test.task.app.mvp.views.IExitView
 import moxy.InjectViewState
 import moxy.MvpPresenter
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @InjectViewState
-@Singleton
-class PresenterExit @Inject constructor(private val sharedPreferences: SharedPreferences) : MvpPresenter<IExitView>() {
+class PresenterExit constructor(private val sharedPreferences: SharedPreferences) : MvpPresenter<IExitView>() {
 
     fun logout(){
         val editor = sharedPreferences.edit()

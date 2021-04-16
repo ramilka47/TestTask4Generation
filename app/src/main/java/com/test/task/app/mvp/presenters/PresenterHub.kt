@@ -12,12 +12,9 @@ import moxy.MvpPresenter
 import moxy.presenterScope
 import org.json.JSONException
 import java.net.UnknownHostException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @InjectViewState
-@Singleton
-class PresenterHub @Inject constructor(private val bd : AppDatabase,
+class PresenterHub constructor(private val bd : AppDatabase,
                                        private val gitService: GitService) : MvpPresenter<IHubView>() {
 
     override fun onFirstViewAttach() {
